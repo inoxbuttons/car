@@ -262,10 +262,16 @@ async function loadCar(def) {
   root.position.sub(new THREE.Vector3(c.x, b.min.y, c.z));
   wrap.updateMatrixWorld(true);
 
-  carMeshes = [];
+  carMeshes = []; let missingExterior = false;
   wrap.traverse((o) => {
     if (o.isMesh) {
       carMeshes.push(o);
+      // _exterior запекается скриптом tools/bake-exterior.mjs; без него вся модель считается внешней
+      const g = o.geometry;
+      if (!g.attributes._exterior && g.attributes.position) {
+        g.setAttribute('_exterior', new THREE.BufferAttribute(new Float32Array(g.attributes.position.count).fill(1), 1));
+        missingExterior = true;
+      }
       if (PAINT_COLOR && def.paint && !Array.isArray(o.material) && o.material.name === def.paint) {
         o.material = getPaintMaterial();
       }
@@ -278,6 +284,7 @@ async function loadCar(def) {
       });
     }
   });
+  if (missingExterior) console.warn('В модели нет атрибута _EXTERIOR — салон будет пачкаться. Прогоните её через tools/bake-exterior.mjs');
   car = wrap; scene.add(car);
   carBox.copy(preciseBox(car));
   const size = carBox.getSize(new THREE.Vector3());
@@ -343,19 +350,27 @@ function disposeObj(o) {
 
 /* ---------------- «чистота» в процентах ---------------- */
 function voxelIndex(x, y, z) { return x + y * MX + z * MX * MY; }
+// Учитываем в процентах только то, что реально можно помыть:
+// внешние поверхности (не салон) и не днище (грани, смотрящие вниз, и самый низ).
 function buildSurfaceVoxels() {
   const flags = new Uint8Array(MX * MY * MZ);
-  const v = new THREE.Vector3(), mi = new THREE.Matrix4(), mw = new THREE.Matrix4();
+  const v = new THREE.Vector3(), nrm = new THREE.Vector3(), mi = new THREE.Matrix4(), mw = new THREE.Matrix4(), nm = new THREE.Matrix3();
   const bmin = DirtUniforms.uBoxMin.value, bs = DirtUniforms.uBoxSize.value;
+  const floorY = carBox.min.y + 0.06;
   for (const m of carMeshes) {
     const pos = m.geometry.attributes.position; if (!pos) continue;
+    const ext = m.geometry.attributes._exterior, nor = m.geometry.attributes.normal;
     const step = Math.max(1, Math.floor(pos.count / 6000));
     const inst = m.isInstancedMesh ? m.count : 1;
     for (let j = 0; j < inst; j++) {
       mw.copy(m.matrixWorld);
       if (m.isInstancedMesh) { m.getMatrixAt(j, mi); mw.multiply(mi); }
+      nm.getNormalMatrix(mw);
       for (let i = 0; i < pos.count; i += step) {
+        if (ext && ext.getX(i) < 0.5) continue;                       // салон
         v.fromBufferAttribute(pos, i).applyMatrix4(mw);
+        if (v.y < floorY) continue;                                     // самый низ
+        if (nor) { nrm.fromBufferAttribute(nor, i).applyMatrix3(nm).normalize(); if (nrm.y < -0.35) continue; } // днище
         const x = Math.floor((v.x - bmin.x) / bs.x * MX), y = Math.floor((v.y - bmin.y) / bs.y * MY), z = Math.floor((v.z - bmin.z) / bs.z * MZ);
         if (x >= 0 && y >= 0 && z >= 0 && x < MX && y < MY && z < MZ) flags[voxelIndex(x, y, z)] = 1;
       }
@@ -664,4 +679,4 @@ const startCar = CARS.find((c) => c.id === new URLSearchParams(location.search).
 loadCar(startCar);
 tick();
 
-window.__wash = { setProgress: (p) => { progress = p; sweepSmooth = THREE.MathUtils.clamp((p - 0.14) / 0.7, 0, 1); }, setSponge, paintAt, camera, controls, DirtUniforms, cleanliness };
+window.__wash = { get car() { return car; }, setProgress: (p) => { progress = p; sweepSmooth = THREE.MathUtils.clamp((p - 0.14) / 0.7, 0, 1); }, setSponge, paintAt, camera, controls, DirtUniforms, cleanliness };

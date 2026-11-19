@@ -15,16 +15,19 @@ npx serve .          # или: python3 -m http.server 8080
 - **Облёт** — тянуть мышью (только по горизонтали/вертикали, без крена и ниже пола не уйти).
 - **Зум** — pinch на трекпаде/телефоне, Ctrl + колесо, или кнопки +/−. Обычное колесо листает страницу.
 
-Грязь процедурная (шейдер поверх родных материалов модели), поэтому подходит любая машина.
+Грязь процедурная (шейдер поверх родных материалов модели), поэтому подходит любая машина. Салон всегда чистый. Процент чистоты считается только по тому, что можно помыть: без салона и днища.
 
 ## Как заменить машину
-1. Сожмите модель (необязательно, но в 5–8 раз легче):
-   `npx @gltf-transform/cli optimize car.glb site/models/mycar.glb --compress meshopt --texture-compress webp --texture-size 2048 --simplify false --palette false`
-2. Добавьте строку в `CARS` в `src/main.js` (или задайте `window.CAR_MODELS = [...]` в index.html до app.js):
+1. Разметьте салон — без этого шага салон и всё внутри кузова тоже будут пачкаться (1–3 минуты):
+   `npm i && node tools/bake-exterior.mjs car.glb car-baked.glb`
+   Скрипт пускает лучи из каждой вершины и записывает атрибут `_EXTERIOR`: внешние поверхности пачкаются и моются, салон, багажник и всё за стёклами — всегда чистые.
+2. Сожмите модель (в 5–8 раз легче):
+   `npx @gltf-transform/cli optimize car-baked.glb models/mycar.glb --compress meshopt --texture-compress webp --texture-size 2048 --simplify false --palette false`
+3. Добавьте строку в `CARS` в `src/main.js` (или задайте `window.CAR_MODELS = [...]` в index.html до app.js):
    `{ id: 'mycar', name: 'Моя машина', url: 'models/mycar.glb', front: 1, paint: 'ИмяМатериалаКраски' }`
    - `front: -1`, если машина стоит задом к камере.
    - `paint` — имя материала кузова; он перекрашивается в чёрный глянец (как в референсе). Без `paint` — родной цвет. Цвет: `window.CAR_PAINT = '#1a1a1a'` (или `null`).
-3. Пересобрать: `npm i three@0.170.0 three-mesh-bvh@0.8.3 esbuild && npx esbuild src/main.js --bundle --format=esm --minify --outfile=assets/app.js`
+4. Пересобрать: `npm i three@0.170.0 three-mesh-bvh@0.8.3 esbuild && npx esbuild src/main.js --bundle --format=esm --minify --outfile=assets/app.js`
 
 ## Ассеты и лицензии
 - HAVAL H6 HEV 2024 — vinishows, Sketchfab, **CC BY 4.0** (можно коммерчески с указанием автора).

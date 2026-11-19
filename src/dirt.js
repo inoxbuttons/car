@@ -26,7 +26,7 @@ float dFbm(vec3 p){ float a=0.5, s=0.0; for(int i=0;i<4;i++){ s+=a*dNoise(p); p=
 const FRAG_PARS = /* glsl */`
 uniform float uSweep; uniform vec3 uSweepDir; uniform highp sampler3D uMask;
 uniform vec3 uBoxMin; uniform vec3 uBoxSize; uniform float uTime; uniform float uDirt;
-varying vec3 vDW; varying vec3 vDN;
+varying vec3 vDW; varying vec3 vDN; varying float vExt;
 float gDirt; float gDirtH; float gMudWet; float gWet; float gFoam; vec3 gMud;
 ${NOISE}
 void computeDirt(){
@@ -62,14 +62,17 @@ void computeDirt(){
   float sweepClean = 1.0 - smoothstep(uSweep - 0.025, uSweep + 0.025, s);
   float m = texture(uMask, clamp(b, 0.0, 1.0)).r;
   float clean = max(sweepClean, smoothstep(0.15, 0.85, m));
-  gDirt = d * (1.0 - clean) * uDirt;
+  // салон и всё закрытое кузовом — всегда чистое
+  float ext = smoothstep(0.3, 0.9, vExt);
+  gDirt = d * (1.0 - clean) * uDirt * ext;
 
   float behind = uSweep - s;   // >0 — уже вымыто
   gWet = sweepClean * (1.0 - smoothstep(0.0, 0.9, behind));
   gWet = max(gWet, smoothstep(0.2, 0.6, m) * (1.0 - smoothstep(0.6, 1.0, m)) );
   float edge = 1.0 - smoothstep(0.0, 0.12, abs(s - uSweep));
   float bub = smoothstep(0.35, 0.8, dNoise(p*60.0 + vec3(0.0, -uTime*2.0, 0.0)));
-  gFoam = edge * (0.35 + 0.65*bub) * step(0.001, d + 0.3);
+  gFoam = edge * (0.35 + 0.65*bub) * ext;
+  gWet *= ext;
 }
 vec3 dirtBump(vec3 surf_pos, vec3 surf_norm, float hgt){
   vec3 sx = dFdx(surf_pos), sy = dFdy(surf_pos);
@@ -87,7 +90,7 @@ export function patchMaterial(mat) {
   mat.onBeforeCompile = (shader) => {
     Object.assign(shader.uniforms, DirtUniforms);
     shader.vertexShader = shader.vertexShader
-      .replace('#include <common>', '#include <common>\nvarying vec3 vDW; varying vec3 vDN;')
+      .replace('#include <common>', '#include <common>\nvarying vec3 vDW; varying vec3 vDN; varying float vExt; attribute float _exterior;')
       .replace('#include <project_vertex>', `#include <project_vertex>
         vec4 dwp = vec4(transformed, 1.0);
         vec3 dwn = objectNormal;
@@ -95,6 +98,7 @@ export function patchMaterial(mat) {
           dwp = instanceMatrix * dwp;
           dwn = mat3(instanceMatrix) * dwn;
         #endif
+        vExt = _exterior;
         vDW = (modelMatrix * dwp).xyz;
         vDN = normalize(mat3(modelMatrix) * dwn);`);
 
