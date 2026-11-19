@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>БЛЕСК — автомойка и детейлинг</title>
+<meta name="description" content="Автомойка и детейлинг БЛЕСК: ручная мойка, химчистка, полировка и керамика. Привезите грязной — заберите сияющей.">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="nav">
+  <a href="#hero" class="logo"><span class="logo-mark"></span>БЛЕСК<small>мойка · детейлинг</small></a>
+  <nav>
+    <a href="#services">Услуги</a>
+    <a href="#why">Почему мы</a>
+    <a href="#contacts">Контакты</a>
+  </nav>
+  <a href="#book" class="btn btn-ghost">Записаться</a>
+</header>
+
+<section id="hero">
+  <div class="stage">
+    <canvas id="scene"></canvas>
+
+    <div class="hud hud-tl">
+      <span class="pill"><i class="dot"></i><span id="step-label">Шаг 1 · Приёмка</span></span>
+    </div>
+
+    <div class="hud hud-tr meter">
+      <div class="meter-row"><span>Чистота</span><b id="meter-val">0%</b></div>
+      <div class="meter-track"><div id="meter-fill"></div></div>
+    </div>
+
+    <div class="headline">
+      <h1 class="phase on"><span>Привезите</span><span class="outline">грязной</span></h1>
+      <h1 class="phase"><span>Листайте,</span><span class="outline">чтобы помыть</span></h1>
+      <h1 class="phase"><span>Заберите</span><span class="outline">сияющей</span></h1>
+      <p class="sub">Ручная мойка, химчистка и керамика. 25 минут — и машина как из салона.</p>
+    </div>
+
+    <div class="toolbar" role="toolbar" aria-label="Управление 3D-сценой">
+      <button id="btn-rotate" class="tool active" title="Вращать"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5"/></svg><span>Вращать</span></button>
+      <button id="btn-sponge" class="tool" title="Мыть губкой"><svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="10" rx="3"/><circle cx="9" cy="4.5" r="1.5"/><circle cx="14.5" cy="3.5" r="1"/><circle cx="18" cy="5.5" r="1.2"/></svg><span>Губка</span></button>
+      <i class="sep"></i>
+      <button id="btn-zoom-in" class="tool icon" title="Приблизить"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+      <button id="btn-zoom-out" class="tool icon" title="Отдалить"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+      <button id="btn-view" class="tool icon" title="Вернуть ракурс"><svg viewBox="0 0 24 24"><path d="M3 12h4M17 12h4M12 3v4M12 17v4"/><circle cx="12" cy="12" r="3"/></svg></button>
+      <button id="btn-reset" class="tool icon" title="Испачкать снова"><svg viewBox="0 0 24 24"><path d="M4 20c3-1 4-4 8-4s5 3 8 4M8 11a2 2 0 1 0 0-.1M15 8a1.5 1.5 0 1 0 0-.1M17 13a1 1 0 1 0 0-.1"/></svg></button>
+    </div>
+
+    <div class="car-switch">
+      <span>Модель</span>
+      <div id="car-chips"></div>
+    </div>
+
+    <div class="hint">
+      <span><b>Тяните</b> — облёт</span>
+      <span><b>Pinch / Ctrl + колесо</b> — зум</span>
+      <span><b>Листайте</b> — мойка</span>
+    </div>
+    <div class="scroll-cue"><i></i></div>
+
+    <div id="loader"><div class="loader-box"><div class="loader-track"><div id="loader-bar"></div></div><p id="loader-txt">Загружаем машину…</p></div></div>
+    <div id="sponge-cursor"></div>
+  </div>
+</section>
+
+<div class="ticker" aria-hidden="true"><div>Моем · Сушим · Полируем · Защищаем · Моем · Сушим · Полируем · Защищаем · Моем · Сушим · Полируем · Защищаем ·&nbsp;</div></div>
+
+<section id="services" class="section">
+  <div class="section-head">
+    <p class="eyebrow">01 — Услуги</p>
+    <h2>Чисто.<br><span class="outline">Без компромиссов.</span></h2>
+  </div>
+  <div class="cards">
+    <article class="card">
+      <div class="card-top"><h3>Экспресс</h3><span class="time">25 мин</span></div>
+      <p>Бесконтактная пена, ручная мойка, сушка, чернение шин.</p>
+      <div class="price">от 900 ₽</div>
+    </article>
+    <article class="card">
+      <div class="card-top"><h3>Комплекс</h3><span class="time">60 мин</span></div>
+      <p>Кузов, салон, стёкла с двух сторон, коврики и пороги.</p>
+      <div class="price">от 2 400 ₽</div>
+    </article>
+    <article class="card card-accent">
+      <div class="card-top"><h3>Детейлинг-мойка</h3><span class="time">3 ч</span></div>
+      <p>Двухфазная мойка, очистка битума, глина, кварцевый воск.</p>
+      <div class="price">от 5 900 ₽</div>
+    </article>
+    <article class="card">
+      <div class="card-top"><h3>Полировка + керамика</h3><span class="time">1–2 дня</span></div>
+      <p>Убираем «паутинку» и царапины, защищаем покрытие до 2 лет.</p>
+      <div class="price">от 18 000 ₽</div>
+    </article>
+  </div>
+</section>
+
+<section id="why" class="section stats">
+  <div class="stat"><b>25<small>мин</small></b><span>средняя мойка «Экспресс»</span></div>
+  <div class="stat"><b>pH 7</b><span>мягкая химия, безопасная для покрытий</span></div>
+  <div class="stat"><b>12<small>мес</small></b><span>гарантия на керамику</span></div>
+  <div class="stat"><b>24/7</b><span>онлайн-запись без звонков</span></div>
+</section>
+
+<section id="book" class="section book">
+  <div class="book-l">
+    <p class="eyebrow">02 — Запись</p>
+    <h2>Ключи —<br><span class="outline">нам.</span><br>Блеск — вам.</h2>
+    <div id="contacts" class="contacts">
+      <div><span>Адрес</span><b>г. Таганрог, ул. Чистая, 7</b></div>
+      <div><span>Телефон</span><b><a href="tel:+79000000000">+7 (900) 000-00-00</a></b></div>
+      <div><span>Telegram</span><b><a href="#">@blesk_wash</a></b></div>
+      <div><span>Режим</span><b>Ежедневно 8:00–23:00</b></div>
+    </div>
+  </div>
+  <form class="book-form" id="book-form">
+    <label>Имя<input name="name" required placeholder="Как к вам обращаться"></label>
+    <label>Телефон<input name="phone" type="tel" required placeholder="+7 (___) ___-__-__"></label>
+    <label>Услуга
+      <select name="service">
+        <option>Экспресс — от 900 ₽</option>
+        <option>Комплекс — от 2 400 ₽</option>
+        <option>Детейлинг-мойка — от 5 900 ₽</option>
+        <option>Полировка + керамика — от 18 000 ₽</option>
+      </select>
+    </label>
+    <label>Когда удобно<input name="date" type="datetime-local"></label>
+    <button class="btn btn-solid" type="submit">Записаться</button>
+    <p class="form-note">Перезвоним за 10 минут и подтвердим время.</p>
+    <div class="form-ok" hidden><b>Готово!</b> Мы скоро перезвоним.</div>
+  </form>
+</section>
+
+<footer class="footer">
+  <span>© 2026 БЛЕСК. Автомойка и детейлинг.</span>
+  <span class="credits">3D: «HAVAL H6 HEV 2024» — vinishows (CC BY 4.0), Chery Omoda 5 / Jetour Dashing — Ddiaz Design (CC BY-NC-SA 4.0), Sketchfab · HDRI: Poly Haven (CC0)</span>
+</footer>
+
+<script>
+  document.getElementById('book-form').addEventListener('submit', function (e) {
+    e.preventDefault(); this.querySelector('.form-ok').hidden = false; this.querySelector('button').disabled = true;
+  });
+</script>
+<script type="module" src="assets/app.js"></script>
+</body>
+</html>

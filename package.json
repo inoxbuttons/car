@@ -1,0 +1,14 @@
+{
+  "name": "blesk-car-wash",
+  "private": true,
+  "scripts": {
+    "build": "esbuild src/main.js --bundle --format=esm --minify --outfile=assets/app.js",
+    "start": "serve ."
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "serve": "^14.2.0",
+    "three": "0.170.0",
+    "three-mesh-bvh": "0.8.3"
+  }
+}
