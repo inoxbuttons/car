@@ -59,10 +59,31 @@ controls.enableZoom = false;        // зум — pinch / Ctrl+колесо / к
 controls.enableDamping = true;
 controls.dampingFactor = 0.07;
 controls.rotateSpeed = 0.7;
-controls.minPolarAngle = 0.32;      // «облёт» только по X/Y: без крена, не ниже пола
+controls.minPolarAngle = 0.12;      // «облёт» только по X/Y: без крена, не ниже пола; сверху — почти вертикально
 controls.maxPolarAngle = 1.5;
 controls.minDistance = 3.4;
 controls.maxDistance = 12;
+// «Купол» под потолком: камера не поднимается выше CAM_CEIL (LED-полосы висят на 3.45 м).
+// Чем выше её поднимают, тем ближе она подъезжает к машине и смотрит на крышу сверху.
+const CAM_CEIL = 3.1;
+const DIST_SIDE = 3.4;   // минимум сбоку — чтобы не въехать в кузов
+const DIST_TOP = 2.3;    // минимум сверху — над крышей можно ближе
+let baseMaxDistance = 12, baseFov = 36;
+const _off = new THREE.Vector3();
+function applyCameraDome() {
+  _off.copy(camera.position).sub(controls.target);
+  const r = Math.max(_off.length(), 1e-4);
+  const cosPhi = THREE.MathUtils.clamp(_off.y / r, -1, 1);          // 1 — камера строго сверху
+  const k = THREE.MathUtils.smoothstep(cosPhi, 0.55, 0.9);           // насколько «сверху» мы смотрим
+  controls.minDistance = THREE.MathUtils.lerp(DIST_SIDE, DIST_TOP, k);
+  const room = CAM_CEIL - controls.target.y;
+  const cap = cosPhi > 0.01 ? room / cosPhi : Infinity;               // дальше — упрёмся в потолок
+  controls.maxDistance = Math.max(controls.minDistance, Math.min(baseMaxDistance, cap));
+  if (zoomTarget !== null) zoomTarget = THREE.MathUtils.clamp(zoomTarget, controls.minDistance, controls.maxDistance);
+  // под низким потолком машина целиком не влезает в кадр — сверху расширяем угол обзора
+  const fov = baseFov + 28 * THREE.MathUtils.smoothstep(cosPhi, 0.6, 0.97);
+  if (Math.abs(camera.fov - fov) > 0.01) { camera.fov += (fov - camera.fov) * 0.25; camera.updateProjectionMatrix(); }
+}
 controls.target.set(0, 0.72, 0);
 camera.position.set(-4.6, 1.55, 5.6);
 canvas.style.touchAction = 'pan-y';  // на телефоне вертикальный свайп листает, горизонтальный — крутит
@@ -537,11 +558,12 @@ function resize() {
   composer.setSize(w, h);
   bloom.resolution.set(w / 2, h / 2);
   camera.aspect = w / h;
-  camera.fov = camera.aspect < 0.8 ? 46 : 36;
+  baseFov = camera.aspect < 0.8 ? 46 : 36;
+  camera.fov = baseFov;
   // на широких экранах сдвигаем машину вправо, чтобы не мешал заголовок
   if (camera.aspect > 1.25) camera.setViewOffset(w, h, -w * 0.12, 0, w, h); else camera.clearViewOffset();
   camera.updateProjectionMatrix();
-  controls.maxDistance = camera.aspect < 1 ? 17 : 12;
+  baseMaxDistance = camera.aspect < 1 ? 17 : 12;
   dropMat.uniforms.uPx.value = foamMat.uniforms.uPx.value = renderer.getPixelRatio() * h / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2));
 }
 addEventListener('resize', resize);
@@ -610,7 +632,14 @@ function tick() {
     flyHome -= dt * 0.8;
     if (camera.position.distanceTo(homePos) < 0.02) flyHome = 0;
   }
+  applyCameraDome();
   controls.update();
+  // страховка: после демпфирования камера всё равно не выше потолка
+  if (camera.position.y > CAM_CEIL) {
+    _off.copy(camera.position).sub(controls.target);
+    _off.multiplyScalar((CAM_CEIL - controls.target.y) / Math.max(_off.y, 1e-4));
+    camera.position.copy(controls.target).add(_off);
+  }
 
   // UI
   phases.forEach((el, i) => {
