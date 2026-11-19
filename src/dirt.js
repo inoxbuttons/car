@@ -60,13 +60,13 @@ void computeDirt(){
   float nC = dNoise(p*45.0);
 
   // 1) пыль
-  float dustA = 0.10 + 0.38*up + 0.10*(nA - 0.5)*2.0;
-  dustA *= 0.75 + 0.5*nB;
+  float dustA = 0.42 + 0.33*up + 0.12*(nA - 0.5)*2.0;
+  dustA *= 0.8 + 0.35*nB;
   // дорожки дождя по пыли на вертикальных панелях
   float rain = smoothstep(0.74, 0.9, dNoise(vec3(p.x*24.0 + p.z*24.0, p.y*0.7 + nA*1.5, p.z*24.0 - p.x*24.0)))
              * smoothstep(0.35, 0.65, dNoise(p*2.2 + 5.0));
-  dustA *= 1.0 - 0.75*rain*side;
-  dustA = clamp(dustA, 0.0, 0.7);
+  dustA *= 1.0 - 0.55*rain*side;
+  dustA = clamp(dustA, 0.0, 0.88);
 
   // 2) грязь снизу
   float line = 0.38 + 0.10*(nA - 0.5)*2.0 + 0.06*(nB - 0.5)*2.0;   // м над землёй (норм. к H ниже)
@@ -100,7 +100,7 @@ void computeDirt(){
   float ring = smoothstep(0.30*ds, 0.25*ds, c1) * smoothstep(0.13*ds, 0.2*ds, c1) * lowZone * smoothstep(0.25, 0.6, nB);   // засохший ободок
 
   // цвета (линейные)
-  vec3 dustC  = vec3(0.30, 0.26, 0.20) * (0.85 + 0.3*nC);
+  vec3 dustC  = vec3(0.34, 0.31, 0.27) * (0.85 + 0.3*nC);   // серо-бежевая пыль
   vec3 grimeC = mix(vec3(0.13, 0.10, 0.07), vec3(0.26, 0.20, 0.14), smoothstep(0.3, 0.7, nB)) * (0.8 + 0.35*nC);
   vec3 dropC  = vec3(0.22, 0.18, 0.13);
 
@@ -171,7 +171,7 @@ export function patchMaterial(mat) {
         diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.92,0.95,1.0), gFoam*0.85);
         diffuseColor.a = max(diffuseColor.a, gFoam*0.8);`)
       .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
-        roughnessFactor = mix(roughnessFactor, mix(0.9, 0.5, gMudWet), smoothstep(0.15, 0.9, gDirt));
+        roughnessFactor = mix(roughnessFactor, mix(0.92, 0.5, gMudWet), smoothstep(0.0, 0.55, gDirt));
         roughnessFactor = mix(roughnessFactor, 0.6, gFoam);
         roughnessFactor = mix(roughnessFactor, min(roughnessFactor, 0.06), gWet*0.9);`)
       .replace('#include <metalnessmap_fragment>', `#include <metalnessmap_fragment>
@@ -186,7 +186,7 @@ export function patchMaterial(mat) {
         totalEmissiveRadiance *= 1.0 - gDirt*0.9;`)
       .replace('#include <lights_physical_fragment>', `#include <lights_physical_fragment>
         #ifdef USE_CLEARCOAT
-          material.clearcoat *= (1.0 - gDirt);
+          material.clearcoat *= 1.0 - smoothstep(0.0, 0.45, gDirt);
         #endif`)
       .replace('#include <transmission_fragment>', trans);
   };

@@ -4084,13 +4084,13 @@ void computeDirt(){
   float nC = dNoise(p*45.0);
 
   // 1) \u043F\u044B\u043B\u044C
-  float dustA = 0.10 + 0.38*up + 0.10*(nA - 0.5)*2.0;
-  dustA *= 0.75 + 0.5*nB;
+  float dustA = 0.42 + 0.33*up + 0.12*(nA - 0.5)*2.0;
+  dustA *= 0.8 + 0.35*nB;
   // \u0434\u043E\u0440\u043E\u0436\u043A\u0438 \u0434\u043E\u0436\u0434\u044F \u043F\u043E \u043F\u044B\u043B\u0438 \u043D\u0430 \u0432\u0435\u0440\u0442\u0438\u043A\u0430\u043B\u044C\u043D\u044B\u0445 \u043F\u0430\u043D\u0435\u043B\u044F\u0445
   float rain = smoothstep(0.74, 0.9, dNoise(vec3(p.x*24.0 + p.z*24.0, p.y*0.7 + nA*1.5, p.z*24.0 - p.x*24.0)))
              * smoothstep(0.35, 0.65, dNoise(p*2.2 + 5.0));
-  dustA *= 1.0 - 0.75*rain*side;
-  dustA = clamp(dustA, 0.0, 0.7);
+  dustA *= 1.0 - 0.55*rain*side;
+  dustA = clamp(dustA, 0.0, 0.88);
 
   // 2) \u0433\u0440\u044F\u0437\u044C \u0441\u043D\u0438\u0437\u0443
   float line = 0.38 + 0.10*(nA - 0.5)*2.0 + 0.06*(nB - 0.5)*2.0;   // \u043C \u043D\u0430\u0434 \u0437\u0435\u043C\u043B\u0451\u0439 (\u043D\u043E\u0440\u043C. \u043A H \u043D\u0438\u0436\u0435)
@@ -4124,7 +4124,7 @@ void computeDirt(){
   float ring = smoothstep(0.30*ds, 0.25*ds, c1) * smoothstep(0.13*ds, 0.2*ds, c1) * lowZone * smoothstep(0.25, 0.6, nB);   // \u0437\u0430\u0441\u043E\u0445\u0448\u0438\u0439 \u043E\u0431\u043E\u0434\u043E\u043A
 
   // \u0446\u0432\u0435\u0442\u0430 (\u043B\u0438\u043D\u0435\u0439\u043D\u044B\u0435)
-  vec3 dustC  = vec3(0.30, 0.26, 0.20) * (0.85 + 0.3*nC);
+  vec3 dustC  = vec3(0.34, 0.31, 0.27) * (0.85 + 0.3*nC);   // \u0441\u0435\u0440\u043E-\u0431\u0435\u0436\u0435\u0432\u0430\u044F \u043F\u044B\u043B\u044C
   vec3 grimeC = mix(vec3(0.13, 0.10, 0.07), vec3(0.26, 0.20, 0.14), smoothstep(0.3, 0.7, nB)) * (0.8 + 0.35*nC);
   vec3 dropC  = vec3(0.22, 0.18, 0.13);
 
@@ -4179,7 +4179,7 @@ varying vec3 vDW; varying vec3 vDN; varying float vExt; attribute float _exterio
         diffuseColor.a = mix(diffuseColor.a, 1.0, gDirt*0.9);
         diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.92,0.95,1.0), gFoam*0.85);
         diffuseColor.a = max(diffuseColor.a, gFoam*0.8);`).replace("#include <roughnessmap_fragment>",`#include <roughnessmap_fragment>
-        roughnessFactor = mix(roughnessFactor, mix(0.9, 0.5, gMudWet), smoothstep(0.15, 0.9, gDirt));
+        roughnessFactor = mix(roughnessFactor, mix(0.92, 0.5, gMudWet), smoothstep(0.0, 0.55, gDirt));
         roughnessFactor = mix(roughnessFactor, 0.6, gFoam);
         roughnessFactor = mix(roughnessFactor, min(roughnessFactor, 0.06), gWet*0.9);`).replace("#include <metalnessmap_fragment>",`#include <metalnessmap_fragment>
         metalnessFactor = mix(metalnessFactor, 0.0, max(gDirt, gFoam));`).replace("#include <normal_fragment_maps>",`#include <normal_fragment_maps>
@@ -4190,7 +4190,7 @@ varying vec3 vDW; varying vec3 vDN; varying float vExt; attribute float _exterio
         }`).replace("#include <emissivemap_fragment>",`#include <emissivemap_fragment>
         totalEmissiveRadiance *= 1.0 - gDirt*0.9;`).replace("#include <lights_physical_fragment>",`#include <lights_physical_fragment>
         #ifdef USE_CLEARCOAT
-          material.clearcoat *= (1.0 - gDirt);
+          material.clearcoat *= 1.0 - smoothstep(0.0, 0.45, gDirt);
         #endif`).replace("#include <transmission_fragment>",t)},i.customProgramCacheKey=()=>"dirt-v1",i.needsUpdate=!0)}Ut.prototype.computeBoundsTree=km;Qe.prototype.raycast=zm;var Af=window.CAR_MODELS||[{id:"haval",name:"Haval H6",url:"models/haval.glb",front:-1,paint:"mat1"},{id:"omoda",name:"Omoda 5",url:"models/omoda.glb",front:1,paint:"CarPaint"},{id:"jetour",name:"Jetour Dashing",url:"models/jetour.glb",front:1,paint:"CarPaint_UV0"}],QM=4.6,Ym=window.CAR_PAINT===void 0?"#060708":window.CAR_PAINT,Zc=null;function $M(){return Zc||(Zc=new _n({color:new we(Ym),metalness:.15,roughness:.12,clearcoat:1,clearcoatRoughness:.03,envMapIntensity:1.25})),Zc}var Xt=i=>document.querySelector(i),an=Xt("#scene"),Qc=Xt(".stage"),eS=matchMedia("(pointer: coarse)").matches,ko=eS||(navigator.hardwareConcurrency||8)<=4||location.search.includes("lite"),si=new Va({canvas:an,antialias:!0,powerPreference:"high-performance"});si.setPixelRatio(Math.min(devicePixelRatio,ko?1.5:1.75));si.toneMapping=vo;si.toneMappingExposure=1;si.outputColorSpace=Rt;var Nn=new ho;Nn.background=new we(460810);Nn.fog=new Ga(460810,12,26);var ft=new Dt(36,1,.3,60),dt=new _c(ft,an);dt.enablePan=!1;dt.enableZoom=!1;dt.enableDamping=!0;dt.dampingFactor=.07;dt.rotateSpeed=.7;dt.minPolarAngle=.12;dt.maxPolarAngle=1.5;dt.minDistance=3.4;dt.maxDistance=12;var Ef=3.1,tS=3.4,nS=2.3,jm=12,Rf=36,Us=new D;function iS(){Us.copy(ft.position).sub(dt.target);let i=Math.max(Us.length(),1e-4),e=Qt.clamp(Us.y/i,-1,1),t=Qt.smoothstep(e,.55,.9);dt.minDistance=Qt.lerp(tS,nS,t);let n=Ef-dt.target.y,s=e>.01?n/e:1/0;dt.maxDistance=Math.max(dt.minDistance,Math.min(jm,s)),Bi!==null&&(Bi=Qt.clamp(Bi,dt.minDistance,dt.maxDistance));let r=Rf+28*Qt.smoothstep(e,.6,.97);Math.abs(ft.fov-r)>.01&&(ft.fov+=(r-ft.fov)*.25,ft.updateProjectionMatrix())}dt.target.set(0,.72,0);ft.position.set(-4.6,1.55,5.6);an.style.touchAction="pan-y";var sS=new pr(si);function Zm(i,e=.07){return new Jn(e,.03,i)}function Cf(i){let e=new ho;if(i){let a=new Qe(new Qa(30,32,16),new Ot({map:i,side:kt,color:new we(.1,.1,.11)}));e.add(a)}let t=new Ot({color:new we(4.5,4.5,4.8)});for(let a=-3;a<=3;a++){let c=new Qe(Zm(16,.18),t);c.position.set(a*1.5,4,0),c.rotation.y=.32,e.add(c)}let n=new Ot({color:new we(1.6,1.6,1.75)}),s=new Qe(new hi(8,1.2),n);s.position.set(-9,2,0),s.rotation.y=Math.PI/2,e.add(s);let r=s.clone();r.position.x=9,r.rotation.y=-Math.PI/2,e.add(r);let o=sS.fromScene(e,.02).texture;Nn.environment=o,Nn.environmentIntensity=1}var Ds=new Sn;Nn.add(Ds);{if(!ko){let c=new Ao(new hi(40,40),{textureWidth:1024,textureHeight:1024,color:9080210});c.rotation.x=-Math.PI/2,c.position.y=-.03,Ds.add(c)}let e=fS();e.wrapS=e.wrapT=ci,e.repeat.set(6,6);let t=new Qe(new hi(40,40),new ui({color:1447706,map:e,roughness:.55,metalness:0,transparent:!ko,opacity:ko?1:.8}));t.rotation.x=-Math.PI/2,Ds.add(t);let n=new Ot({color:new we(5,5,5.3),toneMapped:!1,fog:!0});for(let c=-4;c<=4;c++){let l=new Qe(Zm(22,.07),n);l.position.set(c*1.45,3.45,0),l.rotation.y=.32,Ds.add(l)}let s=dS(),r=new ui({color:723982,map:s,roughness:.75,metalness:.1,side:kt,envMapIntensity:.15}),o=new Qe(new Jn(26,3.9,26),r);o.position.y=1.7,Ds.add(o);let a=new Ot({color:new we(1.8,1.9,2.2),toneMapped:!1});for(let c of[-7,-2.5,2.5,7]){let l=new Qe(new Jn(.05,2.8,.02),a);l.position.set(c,1.7,-12.95),Ds.add(l);let h=l.clone();h.position.z=12.95,Ds.add(h)}}var Xo=new Qe(new hi(1,1),new Ot({map:pS(),transparent:!0,depthWrite:!1,color:0,opacity:.92,polygonOffset:!0,polygonOffsetFactor:-4,polygonOffsetUnits:-4}));Xo.rotation.x=-Math.PI/2;Xo.position.y=.01;Xo.renderOrder=1;Nn.add(Xo);var ii=48,gi=36,zi=112,Br=new Uint8Array(ii*gi*zi),xi=new co(Br,ii,gi,zi);xi.format=Es;xi.type=Zn;xi.minFilter=xi.magFilter=Ct;xi.unpackAlignment=1;xi.needsUpdate=!0;dn.uMask.value=xi;var Oi=new Sn;Nn.add(Oi);var Pf=new Tt({transparent:!0,depthWrite:!1,blending:Ms,side:xn,uniforms:{uTime:{value:0},uFade:{value:0}},vertexShader:"varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0);} ",fragmentShader:`
     varying vec2 vUv; uniform float uTime; uniform float uFade;
     float h(float n){ return fract(sin(n)*43758.5453); }
