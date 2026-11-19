@@ -325,6 +325,7 @@ async function loadCar(def) {
   controls.target.set(0, size.y * 0.45, 0);
 
   maskData.fill(0); maskTex.needsUpdate = true;
+  setupWipers();
   buildSurfaceVoxels();
   bvhReady = false;
   loaderBar.style.transform = 'scaleX(1)';
@@ -367,6 +368,41 @@ function disposeObj(o) {
       mats.forEach((m) => { if (m === paintMat) return; for (const k in m) if (m[k] && m[k].isTexture) m[k].dispose(); m.dispose(); });
     }
   });
+}
+
+/* ---------------- дворники ---------------- */
+// Находим лобовое стекло (стекло спереди-сверху, смотрит вперёд) и ставим оси дворников под его нижней кромкой.
+function setupWipers() {
+  const v = new THREE.Vector3(), nrm = new THREE.Vector3(), mw = new THREE.Matrix4(), nm = new THREE.Matrix3(), mi = new THREE.Matrix4();
+  const H = carBox.max.y - carBox.min.y, midZ = (carBox.max.z + carBox.min.z) / 2;
+  const box = new THREE.Box3(); let n = 0;
+  for (const m of carMeshes) {
+    const mat = m.material; if (Array.isArray(mat)) continue;
+    if (!(mat.transparent || (mat.transmission || 0) > 0)) continue;
+    const pos = m.geometry.attributes.position, nor = m.geometry.attributes.normal; if (!pos || !nor) continue;
+    const inst = m.isInstancedMesh ? m.count : 1;
+    for (let j = 0; j < inst; j++) {
+      mw.copy(m.matrixWorld); if (m.isInstancedMesh) { m.getMatrixAt(j, mi); mw.multiply(mi); }
+      nm.getNormalMatrix(mw);
+      const step = Math.max(1, Math.floor(pos.count / 20000));
+      for (let i = 0; i < pos.count; i += step) {
+        v.fromBufferAttribute(pos, i).applyMatrix4(mw);
+        // фары и передний свес отсекаем: лобовое начинается заметно позади бампера
+        if (v.y < carBox.min.y + H * 0.55 || v.z < midZ || v.z > carBox.max.z - (carBox.max.z - carBox.min.z) * 0.15) continue;
+        nrm.fromBufferAttribute(nor, i).applyMatrix3(nm).normalize();
+        // лобовое: наклонено — смотрит и вперёд, и вверх (фары смотрят только вперёд, люк — только вверх)
+        if (Math.abs(nrm.z) < 0.3 || Math.abs(nrm.y) < 0.4 || Math.abs(nrm.x) > 0.6) continue;
+        box.expandByPoint(v); n++;
+      }
+    }
+  }
+  if (n < 20) { DirtUniforms.uWiperOn.value = 0; return; }
+  const w = box.max.x - box.min.x, cx = (box.min.x + box.max.x) / 2;
+  const y = box.min.y - 0.03, z = box.max.z + 0.02;
+  DirtUniforms.uWiperA.value.set(cx - 0.30 * w, y, z);   // длинный поводок
+  DirtUniforms.uWiperB.value.set(cx + 0.18 * w, y, z);   // короткий
+  DirtUniforms.uWiperR.value.set(0.08 * w, 0.54 * w, 0.08 * w, 0.45 * w);
+  DirtUniforms.uWiperOn.value = 1;
 }
 
 /* ---------------- «чистота» в процентах ---------------- */

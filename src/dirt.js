@@ -9,6 +9,11 @@ export const DirtUniforms = {
   uBoxSize: { value: new THREE.Vector3(2, 1.8, 5) },
   uTime: { value: 0 },
   uDirt: { value: 1 },                   // общая «загрязнённость» 0..1
+  // дворники: оси двух поводков, радиусы щёток (внутр./внешн.) и включатель
+  uWiperA: { value: new THREE.Vector3() },
+  uWiperB: { value: new THREE.Vector3() },
+  uWiperR: { value: new THREE.Vector4() },
+  uWiperOn: { value: 0 },
 };
 
 const NOISE = /* glsl */`
@@ -36,6 +41,7 @@ float dFbm(vec3 p){ float a=0.5, s=0.0; for(int i=0;i<4;i++){ s+=a*dNoise(p); p=
 const FRAG_PARS = /* glsl */`
 uniform float uSweep; uniform vec3 uSweepDir; uniform highp sampler3D uMask;
 uniform vec3 uBoxMin; uniform vec3 uBoxSize; uniform float uTime; uniform float uDirt;
+uniform vec3 uWiperA; uniform vec3 uWiperB; uniform vec4 uWiperR; uniform float uWiperOn;
 varying vec3 vDW; varying vec3 vDN; varying float vExt;
 float gDirt; float gDirtH; float gMudWet; float gWet; float gFoam; vec3 gMud;
 ${NOISE}
@@ -111,6 +117,25 @@ void computeDirt(){
   // шины и диски — тёмная пыль, без «пудры»
   gMud = col;
   float d = clamp(a, 0.0, 1.0);
+  #ifdef DIRT_GLASS
+  // следы дворников на лобовом стекле: внутри дуг грязи мало, по краю дуги — валик
+  if (uWiperOn > 0.5 && abs(n.z) > 0.2 && abs(n.y) > 0.3 && p.y > uWiperA.y - 0.03 && p.z < uWiperA.z + 0.08) {
+    float r1 = length(p - uWiperA), r2 = length(p - uWiperB);
+    float soft = 0.015;
+    float w1 = smoothstep(uWiperR.x, uWiperR.x + soft, r1) * (1.0 - smoothstep(uWiperR.y - soft, uWiperR.y, r1));
+    float w2 = smoothstep(uWiperR.z, uWiperR.z + soft, r2) * (1.0 - smoothstep(uWiperR.w - soft, uWiperR.w, r2));
+    float wiped = max(w1, w2);
+    // тонкие концентрические разводы от резинки
+    float streak = 0.55 + 0.45 * dNoise(vec3(r1*140.0, r2*140.0, 0.0));
+    d *= mix(1.0, 0.12 * streak, wiped);
+    // валик грязи по внешнему краю дуг
+    float ridge = max(smoothstep(0.03, 0.0, abs(r1 - uWiperR.y - 0.012)), smoothstep(0.03, 0.0, abs(r2 - uWiperR.w - 0.012)));
+    ridge *= 1.0 - wiped;
+    d = max(d, ridge * (0.75 + 0.25*nB));
+    col = mix(col, col*0.8, ridge);
+    gMud = col;
+  }
+  #endif
   gMudWet = smoothstep(0.6, 1.0, grimeA) * smoothstep(H*0.18, 0.0, hy) * 0.6;
   gDirtH = grimeA*(0.6*nB + 0.4*nC) + drops*0.15;
 
@@ -144,6 +169,8 @@ export function patchMaterial(mat) {
   if (!mat || mat.userData.dirtPatched) return;
   if (!(mat.isMeshStandardMaterial)) return;
   mat.userData.dirtPatched = true;
+  const glass = mat.transparent || (mat.transmission || 0) > 0;
+  if (glass) mat.defines = Object.assign({}, mat.defines, { DIRT_GLASS: '' });
   mat.onBeforeCompile = (shader) => {
     Object.assign(shader.uniforms, DirtUniforms);
     shader.vertexShader = shader.vertexShader
@@ -190,6 +217,6 @@ export function patchMaterial(mat) {
         #endif`)
       .replace('#include <transmission_fragment>', trans);
   };
-  mat.customProgramCacheKey = () => 'dirt-v1';
+  mat.customProgramCacheKey = () => 'dirt-v2' + (glass ? '-glass' : '');
   mat.needsUpdate = true;
 }
