@@ -399,8 +399,8 @@ function setupWipers() {
   if (n < 20) { DirtUniforms.uWiperOn.value = 0; return; }
   const w = box.max.x - box.min.x, cx = (box.min.x + box.max.x) / 2;
   const y = box.min.y - 0.03, z = box.max.z + 0.02;
-  DirtUniforms.uWiperA.value.set(cx - 0.30 * w, y, z);   // длинный поводок
-  DirtUniforms.uWiperB.value.set(cx + 0.18 * w, y, z);   // короткий
+  DirtUniforms.uWiperA.value.set(cx + 0.30 * w, y, z);   // длинный поводок (леворульная схема)
+  DirtUniforms.uWiperB.value.set(cx - 0.18 * w, y, z);   // короткий
   DirtUniforms.uWiperR.value.set(0.08 * w, 0.54 * w, 0.08 * w, 0.45 * w);
   DirtUniforms.uWiperOn.value = 1;
 }
