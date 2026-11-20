@@ -189,7 +189,7 @@ h2{font-family:var(--display);font-weight:900;text-transform:uppercase;line-heig
 .gbtn[data-tip-pos=left]:hover::after{transform:translate(0,50%)}
 @media (hover:none){.gbtn[data-tip]::after{display:none}}
 
-.toolbar{position:absolute;z-index:6;left:50%;bottom:26px;transform:translateX(-50%);display:flex;align-items:center;gap:12px}
+.toolbar{position:absolute;z-index:6;left:50%;bottom:20px;transform:translateX(-50%);display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:999px;background:rgba(0,0,0,.3)}
 
 /* модели — стеклянные «пилюли» столбиком */
 .car-switch{position:absolute;z-index:6;right:clamp(16px,3vw,40px);top:168px;display:flex;flex-direction:column;align-items:stretch;gap:10px}
@@ -210,7 +210,7 @@ h2{font-family:var(--display);font-weight:900;text-transform:uppercase;line-heig
 
 @media (max-width:640px){
   .gbtn{--s:42px}
-  .toolbar{gap:6px;bottom:16px}
+  .toolbar{gap:6px;bottom:12px;padding:6px 8px}
   .car-switch{top:146px;right:12px;gap:6px}
   .car-chip{min-width:0;padding:9px 30px 9px 14px;font-size:12px}
   .car-chip.active::after{right:12px}
