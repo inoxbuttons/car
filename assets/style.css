@@ -27,7 +27,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;letter-spacing:.02em;font-size:20px;text-transform:lowercase}
 .logo small{font-family:var(--body);font-weight:500;font-size:11px;letter-spacing:.04em;color:var(--muted);text-transform:uppercase}
 .logo-mark{width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--accent) 40%,#0b3b5c 75%);box-shadow:0 0 18px #7fd3ff88}
-.nav nav{display:flex;gap:28px;font-size:14px;color:#fff}
+.nav nav{display:flex;gap:28px;font-size:14px;font-weight:bold;color:#fff}
 .nav nav a:hover{opacity:.75}
 .btn{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:11px 22px;font-weight:700;font-size:14px;transition:.2s}
 .nav .btn{padding:8px 18px}
