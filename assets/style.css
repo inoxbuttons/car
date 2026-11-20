@@ -178,7 +178,7 @@ h2{font-family:var(--display);font-weight:900;text-transform:uppercase;line-heig
 .gbtn:hover{transform:translateY(-2px)}
 .gbtn:active{transform:translateY(1px) scale(.97)}
 .gbtn:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-.gbtn.active{color:var(--accent);border-color:rgba(127,211,255,.7);}
+.gbtn.active{color:var(--accent);box-shadow:0 0 14px 2px rgba(127,211,255,.35)}
 .gbtn.active svg{filter:drop-shadow(0 0 6px rgba(127,211,255,.8))}
 /* подсказка при наведении */
 .gbtn[data-tip]::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 12px);transform:translate(-50%,6px);white-space:nowrap;
