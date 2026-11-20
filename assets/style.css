@@ -163,9 +163,8 @@ h2{font-family:var(--display);font-weight:900;text-transform:uppercase;line-heig
 
 /* ---------- стеклянные кнопки (как в игре) ---------- */
 .gbtn{--s:64px;position:relative;flex:none;width:var(--s);height:var(--s);border-radius:50%;display:grid;place-items:center;color:#fff;cursor:pointer;
-  background:radial-gradient(120% 120% at 50% 115%,#25282e 0%,#0b0c0f 55%,#000 100%);
-  border:1px solid rgba(255,255,255,.2);
-  box-shadow:0 12px 26px rgba(0,0,0,.6),0 0 0 3px rgba(0,0,0,.4),inset 0 -3px 2px -1px rgba(255,255,255,.3),inset 0 2px 3px rgba(255,255,255,.06);
+  background:radial-gradient(120% 120% at 50% 115%,rgba(37,40,46,.5) 0%,rgba(11,12,15,.5) 55%,rgba(0,0,0,.5) 100%);
+  border:0;box-shadow:none;
   transition:transform .15s,box-shadow .2s,border-color .2s,color .2s}
 .gbtn::before{content:'';position:absolute;inset:1px;border-radius:inherit;pointer-events:none;
   background:radial-gradient(170% 130% at 92% -18%,rgba(255,255,255,.34) 0%,rgba(255,255,255,.1) 46%,rgba(255,255,255,0) 47.5%),
@@ -176,7 +175,7 @@ h2{font-family:var(--display);font-weight:900;text-transform:uppercase;line-heig
 #btn-rotate svg{width:62%;height:62%}
 #btn-rotate svg path{stroke:currentColor;stroke-width:.6}
 #btn-reset svg{width:52%;height:52%}
-.gbtn:hover{border-color:rgba(255,255,255,.45);transform:translateY(-2px)}
+.gbtn:hover{transform:translateY(-2px)}
 .gbtn:active{transform:translateY(1px) scale(.97)}
 .gbtn:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .gbtn.active{color:var(--accent);border-color:rgba(127,211,255,.7);
