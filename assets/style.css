@@ -174,7 +174,7 @@ h2{font-family:var(--display);font-weight:900;text-transform:uppercase;line-heig
 .gbtn svg [stroke]{stroke-width:2}
 #btn-rotate svg{width:62%;height:62%}
 #btn-rotate svg path{stroke:currentColor;stroke-width:.6}
-#btn-reset svg{width:52%;height:52%}
+#btn-reset svg{width:50%;height:50%}
 .gbtn:hover{transform:translateY(-2px)}
 .gbtn:active{transform:translateY(1px) scale(.97)}
 .gbtn:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
