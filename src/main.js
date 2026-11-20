@@ -537,6 +537,33 @@ $('#btn-reset').addEventListener('click', () => {
   progress = 0; sweepSmooth = 0;
 });
 
+/* ---------------- «Помыть целиком» и стрелка вниз ---------------- */
+// Плавно прокручиваем первый экран до конца — арка проезжает всю машину.
+let autoScroll = null;
+function scrollToY(y, ms) {
+  if (autoScroll) cancelAnimationFrame(autoScroll);
+  const y0 = scrollY, t0 = performance.now();
+  const ease = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+  const step = (now) => {
+    const t = Math.min(1, (now - t0) / ms);
+    window.scrollTo({ top: y0 + (y - y0) * ease(t), behavior: 'instant' });
+    autoScroll = t < 1 ? requestAnimationFrame(step) : null;
+  };
+  autoScroll = requestAnimationFrame(step);
+}
+// любое ручное колесо/касание прерывает автопрокрутку
+['wheel', 'touchstart', 'keydown'].forEach((ev) => addEventListener(ev, () => { if (autoScroll) { cancelAnimationFrame(autoScroll); autoScroll = null; } }, { passive: true }));
+$('#btn-wash').addEventListener('click', () => {
+  const heroTop = hero.getBoundingClientRect().top + scrollY;
+  const end = heroTop + hero.offsetHeight - innerHeight;
+  if (progress > 0.95) { // уже чистая — сначала испачкаем
+    maskData.fill(0); maskTex.needsUpdate = true;
+    window.scrollTo({ top: heroTop, behavior: 'instant' }); progress = 0; sweepSmooth = 0;
+  }
+  scrollToY(end, 4200);
+});
+$('#btn-down').addEventListener('click', () => scrollToY(scrollY + innerHeight * 0.8, 900));
+
 /* ---------------- зум ---------------- */
 let zoomTarget = null;
 function zoomBy(f) {
@@ -686,7 +713,7 @@ function tick() {
     const c = Math.round(cleanliness() * 100);
     meterVal.textContent = c + '%';
     meterFill.style.transform = `scaleX(${c / 100})`;
-    stepEl.textContent = c >= 98 ? 'Готово · Блеск' : (active ? 'Шаг 2 · Мойка' : (sweepSmooth > 0.99 ? 'Шаг 3 · Блеск' : 'Шаг 1 · Приёмка'));
+    if (stepEl) stepEl.textContent = c >= 98 ? 'Готово · Блеск' : (active ? 'Шаг 2 · Мойка' : (sweepSmooth > 0.99 ? 'Шаг 3 · Блеск' : 'Шаг 1 · Приёмка'));
   }
   frame++;
   composer.render();
