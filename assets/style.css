@@ -49,7 +49,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .hud-tr{top:76px;right:clamp(16px,3vw,40px)}
 
 
-.meter{width:200px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:rgba(10,12,15,.55);backdrop-filter:blur(10px)}
+.meter{width:var(--side-w,200px);padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:rgba(10,12,15,.55);backdrop-filter:blur(10px)}
 .meter-row{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--muted)}
 .meter-row b{font-family:var(--display);font-size:18px;color:#fff}
 .meter-track{height:4px;border-radius:4px;background:rgba(255,255,255,.1);margin-top:8px;overflow:hidden}
@@ -143,7 +143,8 @@ h2{font-family:var(--display);font-weight:900;text-transform:uppercase;line-heig
 }
 @media (max-width:640px){
   .nav nav{display:none}
-  .meter{width:150px;padding:10px 12px}
+  .meter{padding:10px 12px}
+  .stage{--side-w:150px}
   .hud-tr{top:72px}
   .headline{bottom:150px}
   .headline h1{font-size:clamp(24px,7.6vw,40px);bottom:64px}
@@ -174,7 +175,7 @@ h2{font-family:var(--display);font-weight:900;text-transform:uppercase;line-heig
 .gbtn svg [stroke]{stroke-width:2}
 #btn-rotate svg{width:62%;height:62%}
 #btn-rotate svg path{stroke:currentColor;stroke-width:.6}
-#btn-reset svg{width:50%;height:50%}
+#btn-reset svg{width:42%;height:42%}
 .gbtn:hover{transform:translateY(-2px)}
 .gbtn:active{transform:translateY(1px) scale(.97)}
 .gbtn:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
@@ -192,8 +193,8 @@ h2{font-family:var(--display);font-weight:900;text-transform:uppercase;line-heig
 .toolbar{position:absolute;z-index:6;left:50%;bottom:20px;transform:translateX(-50%);display:flex;align-items:center;gap:12px;padding:10px 10px;border-radius:999px;background:rgba(0,0,0,.3)}
 
 /* модели — стеклянные «пилюли» столбиком */
-.car-switch{position:absolute;z-index:6;right:clamp(16px,3vw,40px);top:168px;display:flex;flex-direction:column;align-items:stretch;gap:10px}
-.car-chip{position:relative;min-width:190px;padding:15px 24px;border-radius:999px;color:#e9edf1;font-size:15px;font-weight:600;letter-spacing:.01em;text-align:left;cursor:pointer;
+.car-switch{position:absolute;z-index:6;right:clamp(16px,3vw,40px);top:168px;width:var(--side-w,200px);display:flex;flex-direction:column;align-items:stretch;gap:10px}
+.car-chip{position:relative;width:100%;padding:15px 24px;border-radius:999px;color:#e9edf1;font-size:15px;font-weight:600;letter-spacing:.01em;text-align:left;cursor:pointer;
   background:radial-gradient(120% 160% at 50% 120%,rgba(37,40,46,.5) 0%,rgba(11,12,15,.5) 55%,rgba(0,0,0,.5) 100%);border:0;box-shadow:none;
   transition:transform .15s,box-shadow .2s,color .2s}
 .car-chip::before{content:'';position:absolute;inset:1px;border-radius:inherit;pointer-events:none;
