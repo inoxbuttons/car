@@ -562,7 +562,6 @@ $('#btn-wash').addEventListener('click', () => {
   }
   scrollToY(end, 4200);
 });
-$('#btn-down').addEventListener('click', () => scrollToY(scrollY + innerHeight * 0.8, 900));
 
 /* ---------------- зум ---------------- */
 let zoomTarget = null;

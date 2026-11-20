@@ -27,8 +27,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;letter-spacing:.02em;font-size:20px;text-transform:lowercase}
 .logo small{font-family:var(--body);font-weight:500;font-size:11px;letter-spacing:.04em;color:var(--muted);text-transform:uppercase}
 .logo-mark{width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--accent) 40%,#0b3b5c 75%);box-shadow:0 0 18px #7fd3ff88}
-.nav nav{display:flex;gap:28px;font-size:14px;color:#c9ced4}
-.nav nav a:hover{color:#fff}
+.nav nav{display:flex;gap:28px;font-size:14px;color:#fff}
+.nav nav a:hover{opacity:.75}
 .btn{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:11px 22px;font-weight:700;font-size:14px;transition:.2s}
 .nav .btn{padding:8px 18px}
 .btn-ghost{border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.04);backdrop-filter:blur(8px)}
@@ -204,9 +204,11 @@ h2{font-family:var(--display);font-weight:900;text-transform:uppercase;line-heig
 .car-chip.active{color:var(--accent);box-shadow:0 0 14px 2px rgba(127,211,255,.35)}
 .car-chip.active::after{content:'';position:absolute;right:18px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent)}
 
-.scroll-cue{--s:52px;position:absolute;z-index:6;right:clamp(16px,3vw,40px);bottom:30px}
-.scroll-cue svg{animation:cue 1.8s ease-in-out infinite}
-@keyframes cue{0%,100%{transform:translateY(-2px)}50%{transform:translateY(4px)}}
+.scroll-cue{position:absolute;z-index:6;right:clamp(20px,3.5vw,48px);bottom:40px;display:flex;flex-direction:column;align-items:center;gap:6px;color:#fff;pointer-events:none;animation:cue 1.8s ease-in-out infinite}
+.scroll-cue span{writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.35em;text-transform:uppercase;opacity:.85}
+.scroll-cue svg{width:120px;height:120px;margin:-14px 0;filter:drop-shadow(0 2px 6px rgba(0,0,0,.6))}
+.scroll-cue svg path{stroke-width:2.5px}
+@keyframes cue{0%,100%{transform:translateY(-8px)}50%{transform:translateY(10px)}}
 
 @media (max-width:640px){
   .gbtn{--s:42px}
@@ -216,4 +218,4 @@ h2{font-family:var(--display);font-weight:900;text-transform:uppercase;line-heig
   .car-chip.active::after{right:12px}
   .scroll-cue{display:none}
 }
-@media (prefers-reduced-motion:reduce){.scroll-cue svg{animation:none}}
+@media (prefers-reduced-motion:reduce){.scroll-cue{animation:none}}
