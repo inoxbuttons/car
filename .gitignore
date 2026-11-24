@@ -1,3 +1,14 @@
 node_modules
 .DS_Store
+
+# исходники, которые не нужны сайту
 assets/music/*.wav
+assets/icons/originals/
+assets/icons/*.html
+assets/icons/*_files/
+
+# в репозитории только сжатые модели сайта; сырые .glb храните локально
+models/*.glb
+!models/haval.glb
+!models/omoda.glb
+!models/jetour.glb
