@@ -563,6 +563,34 @@ $('#btn-wash').addEventListener('click', () => {
   scrollToY(end, 4200);
 });
 
+/* ---------------- фоновая музыка ---------------- */
+// Два трека по очереди через один <audio>; по умолчанию выключено (браузеры не дают играть звук без клика).
+const TRACKS = window.BG_TRACKS || ['assets/music/track-0.m4a', 'assets/music/track-1.m4a'];
+const bgm = $('#bgm'), soundBtn = $('#btn-sound');
+let trackIdx = 0, soundOn = false, fadeRaf = null;
+bgm.volume = 0;
+function fadeTo(target, ms, done) {
+  if (fadeRaf) cancelAnimationFrame(fadeRaf);
+  const v0 = bgm.volume, t0 = performance.now();
+  const step = (now) => {
+    const t = Math.min(1, (now - t0) / ms);
+    bgm.volume = Math.min(1, Math.max(0, v0 + (target - v0) * t));
+    if (t < 1) fadeRaf = requestAnimationFrame(step); else { fadeRaf = null; done && done(); }
+  };
+  fadeRaf = requestAnimationFrame(step);
+}
+bgm.addEventListener('ended', () => { trackIdx = (trackIdx + 1) % TRACKS.length; bgm.src = TRACKS[trackIdx]; if (soundOn) bgm.play().catch(() => {}); });
+soundBtn.addEventListener('click', () => {
+  soundOn = !soundOn;
+  soundBtn.classList.toggle('active', soundOn);
+  soundBtn.setAttribute('aria-pressed', String(soundOn));
+  soundBtn.dataset.tip = soundOn ? 'Выключить музыку' : 'Включить музыку';
+  if (soundOn) {
+    if (!bgm.src) bgm.src = TRACKS[trackIdx];
+    bgm.play().then(() => fadeTo(0.55, 800)).catch(() => { soundOn = false; soundBtn.classList.remove('active'); });
+  } else fadeTo(0, 400, () => bgm.pause());
+});
+
 /* ---------------- зум ---------------- */
 let zoomTarget = null;
 function zoomBy(f) {

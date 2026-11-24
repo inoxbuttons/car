@@ -176,6 +176,9 @@ h2{font-family:var(--display);font-weight:900;text-transform:uppercase;line-heig
 #btn-rotate svg{width:62%;height:62%}
 #btn-rotate svg path{stroke:currentColor;stroke-width:.6}
 #btn-reset svg{width:42%;height:42%}
+#btn-sound .ic-on{display:none}
+#btn-sound.active .ic-on{display:block}
+#btn-sound.active .ic-off{display:none}
 .gbtn:hover{transform:translateY(-2px)}
 .gbtn:active{transform:translateY(1px) scale(.97)}
 .gbtn:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
