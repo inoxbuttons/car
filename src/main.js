@@ -534,7 +534,7 @@ $('#btn-reset').addEventListener('click', () => {
   maskData.fill(0); maskTex.needsUpdate = true;
   const top = hero.getBoundingClientRect().top + scrollY;
   if (scrollY > top + 1) window.scrollTo({ top, behavior: 'instant' });
-  progress = 0; sweepSmooth = 0;
+  progress = 0; sweepSmooth = 0; washMax = 0;
 });
 
 /* ---------------- «Помыть целиком» и стрелка вниз ---------------- */
@@ -556,9 +556,9 @@ function scrollToY(y, ms) {
 $('#btn-wash').addEventListener('click', () => {
   const heroTop = hero.getBoundingClientRect().top + scrollY;
   const end = heroTop + hero.offsetHeight - innerHeight;
-  if (progress > 0.95) { // уже чистая — сначала испачкаем
+  if (washMax > 0.95) { // уже чистая — сначала испачкаем
     maskData.fill(0); maskTex.needsUpdate = true;
-    window.scrollTo({ top: heroTop, behavior: 'instant' }); progress = 0; sweepSmooth = 0;
+    window.scrollTo({ top: heroTop, behavior: 'instant' }); progress = 0; sweepSmooth = 0; washMax = 0;
   }
   scrollToY(end, 4200);
 });
@@ -631,7 +631,9 @@ function computeHome() {
 /* ---------------- скролл → мойка ---------------- */
 const hero = $('#hero');
 const phases = [...document.querySelectorAll('.phase')];
-let progress = 0, sweepSmooth = 0;
+// washMax — сколько уже вымыто: только растёт. Скролл вверх машину обратно не пачкает,
+// испачкать можно только кнопкой «Испачкать снова».
+let progress = 0, sweepSmooth = 0, washMax = 0;
 function readScroll() {
   const r = hero.getBoundingClientRect();
   const total = r.height - innerHeight;
@@ -671,7 +673,8 @@ function tick() {
 
   // мойка: 0..0.14 — «привезите грязной», 0.14..0.84 — проезд арки, дальше — чистая
   const wp = THREE.MathUtils.clamp((progress - 0.14) / 0.7, 0, 1);
-  sweepSmooth += (wp - sweepSmooth) * Math.min(1, dt * 5);
+  washMax = Math.max(washMax, wp);
+  sweepSmooth += (washMax - sweepSmooth) * Math.min(1, dt * 5);
   const sw = THREE.MathUtils.lerp(sweepMin, sweepMax, sweepSmooth);
   DirtUniforms.uSweep.value = sw;
   const active = sweepSmooth > 0.002 && sweepSmooth < 0.998;
@@ -733,7 +736,8 @@ function tick() {
 
   // UI
   phases.forEach((el, i) => {
-    const on = (i === 0 && progress < 0.12) || (i === 1 && progress >= 0.12 && progress < 0.86) || (i === 2 && progress >= 0.86);
+    // заголовок следует за мойкой, а не за скроллом: вымытая машина остаётся «сияющей»
+    const on = (i === 0 && washMax <= 0) || (i === 1 && washMax > 0 && washMax < 0.98) || (i === 2 && washMax >= 0.98);
     el.classList.toggle('on', on);
   });
   if (frame % 12 === 0) {
@@ -798,4 +802,4 @@ const startCar = CARS.find((c) => c.id === new URLSearchParams(location.search).
 loadCar(startCar);
 tick();
 
-window.__wash = { get car() { return car; }, setProgress: (p) => { progress = p; sweepSmooth = THREE.MathUtils.clamp((p - 0.14) / 0.7, 0, 1); }, setSponge, paintAt, camera, controls, DirtUniforms, cleanliness };
+window.__wash = { get car() { return car; }, setProgress: (p) => { progress = p; sweepSmooth = washMax = THREE.MathUtils.clamp((p - 0.14) / 0.7, 0, 1); }, setSponge, paintAt, camera, controls, DirtUniforms, cleanliness };
