@@ -10,6 +10,7 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { computeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
 import { DirtUniforms, patchMaterial } from './dirt.js';
+import { TransitionPass } from './transition.js';
 
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
@@ -243,6 +244,8 @@ const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), 0.45, 0.25, 1.1);
 composer.addPass(bloom);
+const transition = new TransitionPass();
+composer.addPass(transition);
 composer.addPass(new OutputPass());
 
 /* ---------------- загрузка машины ---------------- */
@@ -350,7 +353,7 @@ async function loadCar(def) {
   spSet(1);
   // прогрев шейдеров
   renderer.compile(scene, camera);
-  setTimeout(() => loaderEl.classList.add('hidden'), 700);  // дать стрелке дойти до максимума
+  setTimeout(() => { loaderEl.classList.add('hidden'); if (!introPlayed) startIntro(); }, 700);  // дать стрелке дойти до максимума
   document.querySelectorAll('.car-chip').forEach((el) => el.classList.toggle('active', el.dataset.id === def.id));
   // BVH для губки — в фоне
   setTimeout(() => { if (token === loadToken) buildBVH(); }, 600);
@@ -630,6 +633,63 @@ function showBonus() {
   setTimeout(() => el.remove(), 2400);
 }
 
+
+/* ---------------- интро: чистая машина → монтажный переход → грязная ---------------- */
+// ?intro=wipe (по умолчанию) — шторка по маске; ?intro=whip — whip pan; ?intro=off — без интро.
+const INTRO_MODE = new URLSearchParams(location.search).get('intro') || 'wipe';
+const INTRO = { fly: 1.0, hold: 0.15, wipe: 1.2, whip: 0.75 };
+let introPlayed = false, intro = null;
+function introAllowed() {
+  return INTRO_MODE !== 'off' && scrollY < 5 && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+function startIntro() {
+  introPlayed = true;
+  if (!introAllowed()) return;
+  computeHome();
+  const from = new THREE.Vector3(-0.86, 0.04, 0.5).normalize().multiplyScalar(3.6).add(controls.target);
+  camera.position.copy(from);
+  DirtUniforms.uDirt.value = 0;                 // первый «кадр» — чистая машина
+  controls.enabled = false;
+  stage.classList.add('intro');
+  intro = { t: -INTRO.hold, from, to: homePos.clone(), stage: 'fly' };
+  ['wheel', 'pointerdown', 'keydown', 'touchstart', 'scroll'].forEach((ev) => addEventListener(ev, finishIntro, { once: true, passive: true }));
+}
+function finishIntro() {
+  if (!intro) return;
+  intro = null;
+  DirtUniforms.uDirt.value = 1;
+  transition.enabled = false;
+  computeHome(); camera.position.copy(homePos);
+  controls.enabled = !spongeMode;
+  stage.classList.remove('intro');
+}
+function updateIntro(dt) {
+  if (!intro) return;
+  intro.t += dt;
+  if (intro.stage === 'fly') {
+    const k = THREE.MathUtils.clamp(intro.t / INTRO.fly, 0, 1);
+    const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+    // летим по дуге вокруг машины, а не по прямой
+    const a = intro.from.clone().sub(controls.target), b = intro.to.clone().sub(controls.target);
+    const sa = new THREE.Spherical().setFromVector3(a), sb = new THREE.Spherical().setFromVector3(b);
+    let dth = sb.theta - sa.theta; if (dth > Math.PI) dth -= 2 * Math.PI; if (dth < -Math.PI) dth += 2 * Math.PI;
+    const sp = new THREE.Spherical(THREE.MathUtils.lerp(sa.radius, sb.radius, e), THREE.MathUtils.lerp(sa.phi, sb.phi, e), sa.theta + dth * e);
+    camera.position.setFromSpherical(sp).add(controls.target);
+    if (k >= 1) {                                // снимаем чистый кадр, дальше живая сцена уже грязная
+      intro.stage = 'cut'; intro.t = 0;
+      transition.material.uniforms.uMode.value = INTRO_MODE === 'whip' ? 2 : 1;
+      transition.material.uniforms.uP.value = 0;
+      transition.capture = true; transition.enabled = true;
+    }
+  } else if (intro.stage === 'cut') {
+    DirtUniforms.uDirt.value = 1;               // снимок уже сделан в прошлом кадре
+    const dur = INTRO_MODE === 'whip' ? INTRO.whip : INTRO.wipe;
+    const k = Math.min(1, intro.t / dur);
+    transition.material.uniforms.uP.value = k;
+    if (k >= 1) finishIntro();
+  }
+}
+
 /* ---------------- зум ---------------- */
 let zoomTarget = null;
 function zoomBy(f) {
@@ -758,6 +818,7 @@ function tick() {
     camera.position.copy(controls.target).add(off.setLength(nd));
     if (Math.abs(nd - zoomTarget) < 0.01) zoomTarget = null;
   }
+  updateIntro(dt);
   if (flyHome > 0) {
     computeHome();
     camera.position.lerp(homePos, Math.min(1, dt * 4));
@@ -850,4 +911,7 @@ const startCar = CARS.find((c) => c.id === new URLSearchParams(location.search).
 loadCar(startCar);
 tick();
 
-window.__wash = { get car() { return car; }, setProgress: (p) => { progress = p; sweepSmooth = washMax = THREE.MathUtils.clamp((p - 0.14) / 0.7, 0, 1); }, setSponge, paintAt, camera, controls, DirtUniforms, cleanliness };
+window.__wash = { get car() { return car; },
+  // отладка переходов: снимок чистой машины, затем застывший кадр перехода в точке p
+  debugTransition: (mode, p) => { intro = null; DirtUniforms.uDirt.value = 0; transition.material.uniforms.uMode.value = mode; transition.material.uniforms.uP.value = 0; transition.capture = true; transition.enabled = true;
+    requestAnimationFrame(() => requestAnimationFrame(() => { DirtUniforms.uDirt.value = 1; transition.material.uniforms.uP.value = p; })); }, get intro() { return intro ? intro.stage + ':' + intro.t.toFixed(2) + ':' + transition.material.uniforms.uP.value.toFixed(2) : 'done'; }, setProgress: (p) => { progress = p; sweepSmooth = washMax = THREE.MathUtils.clamp((p - 0.14) / 0.7, 0, 1); }, setSponge, paintAt, camera, controls, DirtUniforms, cleanliness };

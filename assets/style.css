@@ -251,3 +251,7 @@ h2{font-family:var(--display);font-weight:900;text-transform:uppercase;line-heig
 .bonus i:nth-child(4n){background:#ffe9a8}
 @keyframes spark{0%{opacity:0;transform:translate(0,0) scale(0) rotate(0)}15%{opacity:1}60%{opacity:1;transform:translate(var(--dx),var(--dy)) scale(var(--s)) rotate(180deg)}100%{opacity:0;transform:translate(calc(var(--dx)*1.15),calc(var(--dy)*1.15 + 30px)) scale(0) rotate(260deg)}}
 @media (prefers-reduced-motion:reduce){.bonus b{animation-duration:1.6s}.bonus i{display:none}}
+
+/* ---------- интро: интерфейс прячется, пока идёт «ролик» ---------- */
+.headline,.toolbar,.hud,.car-switch,.scroll-cue{transition:opacity .5s ease,visibility .5s}
+.stage.intro .headline,.stage.intro .toolbar,.stage.intro .hud,.stage.intro .car-switch,.stage.intro .scroll-cue{opacity:0;visibility:hidden;transition:none}
