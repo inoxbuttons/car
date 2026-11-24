@@ -26,7 +26,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .nav{position:fixed;inset:0 0 auto 0;z-index:30;height:60px;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:0 clamp(16px,3vw,40px);background:rgba(0,0,0,.55);border-bottom:1px solid rgba(255,255,255,.06)}
 .logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;letter-spacing:.02em;font-size:20px;text-transform:lowercase}
 .logo small{font-family:var(--body);font-weight:500;font-size:11px;letter-spacing:.04em;color:var(--muted);text-transform:uppercase}
-.logo-mark{width:28px;height:28px;color:#fff;flex:none}
+.logo-mark{width:32px;height:32px;color:#fff;flex:none}
 .nav nav{display:flex;gap:28px;font-size:14px;font-weight:bold;color:#fff}
 .nav nav a:hover{opacity:.75}
 .btn{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:11px 22px;font-weight:700;font-size:14px;transition:.2s}
