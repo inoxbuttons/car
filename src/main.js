@@ -637,7 +637,7 @@ function showBonus() {
 /* ---------------- интро: чистая машина → монтажный переход → грязная ---------------- */
 // ?intro=wipe (по умолчанию) — шторка по маске; ?intro=whip — whip pan; ?intro=off — без интро.
 const INTRO_MODE = new URLSearchParams(location.search).get('intro') || 'wipe';
-const INTRO = { fly: 1.0, hold: 0.15, wipe: 1.2, whip: 0.75 };
+const INTRO = { fly: 1.5, hold: 0.1, wipe: 1.2, whip: 0.75 };
 let introPlayed = false, intro = null;
 function introAllowed() {
   return INTRO_MODE !== 'off' && scrollY < 5 && !matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -646,7 +646,8 @@ function startIntro() {
   introPlayed = true;
   if (!introAllowed()) return;
   computeHome();
-  const from = new THREE.Vector3(-0.86, 0.04, 0.5).normalize().multiplyScalar(3.6).add(controls.target);
+  // старт — с другой стороны машины (перед смотрит влево), низко и близко; дальше облёт вокруг носа
+  const from = new THREE.Vector3(0.78, 0.06, 0.62).normalize().multiplyScalar(3.8).add(controls.target);
   camera.position.copy(from);
   DirtUniforms.uDirt.value = 0;                 // первый «кадр» — чистая машина
   controls.enabled = false;
@@ -668,7 +669,7 @@ function updateIntro(dt) {
   intro.t += dt;
   if (intro.stage === 'fly') {
     const k = THREE.MathUtils.clamp(intro.t / INTRO.fly, 0, 1);
-    const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+    const e = k * k * k * (k * (k * 6 - 15) + 10);   // smootherstep — мягкий старт и мягкая остановка
     // летим по дуге вокруг машины, а не по прямой
     const a = intro.from.clone().sub(controls.target), b = intro.to.clone().sub(controls.target);
     const sa = new THREE.Spherical().setFromVector3(a), sb = new THREE.Spherical().setFromVector3(b);
