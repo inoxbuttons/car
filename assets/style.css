@@ -229,12 +229,11 @@ h2{font-family:var(--display);font-weight:900;text-transform:uppercase;line-heig
 
 /* ---------- «ЧИСТО!» ---------- */
 .bonus{position:absolute;inset:0;z-index:15;display:grid;place-items:center;pointer-events:none}
-.bonus b{font-family:var(--display);font-weight:900;text-transform:uppercase;font-size:clamp(56px,11vw,160px);letter-spacing:.02em;line-height:1;
-  background:linear-gradient(180deg,#fff 20%,#bfe9ff 55%,#4fb6ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
-  filter:drop-shadow(0 0 18px rgba(127,211,255,.75)) drop-shadow(0 6px 24px rgba(0,0,0,.6));
+.bonus b{font-family:var(--display);font-weight:900;text-transform:uppercase;font-size:clamp(22px,3.7vw,54px);letter-spacing:.04em;line-height:1;color:#fff;
+  text-shadow:0 0 14px rgba(255,255,255,.55),0 4px 18px rgba(0,0,0,.55);
   animation:bonusPop 2.2s cubic-bezier(.2,.9,.25,1.2) forwards}
-@keyframes bonusPop{0%{transform:scale(.2) rotate(-8deg);opacity:0}14%{transform:scale(1.18) rotate(2deg);opacity:1}24%{transform:scale(.96)}32%{transform:scale(1.03)}40%{transform:scale(1)}78%{opacity:1;transform:scale(1) translateY(0)}100%{opacity:0;transform:scale(1.08) translateY(-40px)}}
-.bonus i{position:absolute;left:50%;top:50%;width:22px;height:22px;margin:-11px 0 0 -11px;background:#fff;opacity:0;
+@keyframes bonusPop{0%{transform:scale(.2) rotate(-8deg);opacity:0}14%{transform:scale(1.18) rotate(2deg);opacity:1}24%{transform:scale(.96)}32%{transform:scale(1.03)}40%{transform:scale(1)}78%{opacity:1;transform:scale(1) translateY(0)}100%{opacity:0;transform:scale(1.08) translateY(-24px)}}
+.bonus i{position:absolute;left:50%;top:50%;width:10px;height:10px;margin:-5px 0 0 -5px;background:#fff;opacity:0;
   clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%);
   filter:drop-shadow(0 0 6px #9fdcff);animation:spark 1.5s ease-out var(--d) forwards}
 .bonus i:nth-child(3n){background:#9fdcff}

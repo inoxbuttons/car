@@ -600,7 +600,7 @@ function showBonus() {
   el.innerHTML = '<b>Чисто!</b>';
   for (let i = 0; i < 26; i++) {
     const sp = document.createElement('i');
-    const a = Math.random() * Math.PI * 2, r = 120 + Math.random() * 220;
+    const a = Math.random() * Math.PI * 2, r = 50 + Math.random() * 90;
     sp.style.setProperty('--dx', Math.cos(a) * r + 'px');
     sp.style.setProperty('--dy', Math.sin(a) * r * 0.65 + 'px');
     sp.style.setProperty('--s', (0.5 + Math.random() * 1.1).toFixed(2));
