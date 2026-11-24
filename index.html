@@ -120,14 +120,14 @@
   <form class="book-form" id="book-form">
     <label>Имя<input name="name" required placeholder="Как к вам обращаться"></label>
     <label>Телефон<input name="phone" type="tel" required placeholder="+7 (___) ___-__-__"></label>
-    <label>Услуга
-      <select name="service">
+    <div class="field"><span id="service-label">Услуга</span>
+      <select name="service" class="pretty" aria-labelledby="service-label">
         <option>Экспресс — от 900 ₽</option>
         <option>Комплекс — от 2 400 ₽</option>
         <option>Детейлинг-мойка — от 5 900 ₽</option>
         <option>Полировка + керамика — от 18 000 ₽</option>
       </select>
-    </label>
+    </div>
     <label>Когда удобно<input name="date" type="datetime-local"></label>
     <button class="btn btn-solid" type="submit">Записаться</button>
     <p class="form-note">Перезвоним за 10 минут и подтвердим время.</p>
@@ -145,6 +145,7 @@
     e.preventDefault(); this.querySelector('.form-ok').hidden = false; this.querySelector('button').disabled = true;
   });
 </script>
+<script src="assets/select.js"></script>
 <script type="module" src="assets/app.js"></script>
 </body>
 </html>
