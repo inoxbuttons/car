@@ -226,3 +226,18 @@ h2{font-family:var(--display);font-weight:900;text-transform:uppercase;line-heig
   .scroll-cue{display:none}
 }
 @media (prefers-reduced-motion:reduce){.scroll-cue{animation:none}}
+
+/* ---------- «ЧИСТО!» ---------- */
+.bonus{position:absolute;inset:0;z-index:15;display:grid;place-items:center;pointer-events:none}
+.bonus b{font-family:var(--display);font-weight:900;text-transform:uppercase;font-size:clamp(56px,11vw,160px);letter-spacing:.02em;line-height:1;
+  background:linear-gradient(180deg,#fff 20%,#bfe9ff 55%,#4fb6ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 18px rgba(127,211,255,.75)) drop-shadow(0 6px 24px rgba(0,0,0,.6));
+  animation:bonusPop 2.2s cubic-bezier(.2,.9,.25,1.2) forwards}
+@keyframes bonusPop{0%{transform:scale(.2) rotate(-8deg);opacity:0}14%{transform:scale(1.18) rotate(2deg);opacity:1}24%{transform:scale(.96)}32%{transform:scale(1.03)}40%{transform:scale(1)}78%{opacity:1;transform:scale(1) translateY(0)}100%{opacity:0;transform:scale(1.08) translateY(-40px)}}
+.bonus i{position:absolute;left:50%;top:50%;width:22px;height:22px;margin:-11px 0 0 -11px;background:#fff;opacity:0;
+  clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%);
+  filter:drop-shadow(0 0 6px #9fdcff);animation:spark 1.5s ease-out var(--d) forwards}
+.bonus i:nth-child(3n){background:#9fdcff}
+.bonus i:nth-child(4n){background:#ffe9a8}
+@keyframes spark{0%{opacity:0;transform:translate(0,0) scale(0) rotate(0)}15%{opacity:1}60%{opacity:1;transform:translate(var(--dx),var(--dy)) scale(var(--s)) rotate(180deg)}100%{opacity:0;transform:translate(calc(var(--dx)*1.15),calc(var(--dy)*1.15 + 30px)) scale(0) rotate(260deg)}}
+@media (prefers-reduced-motion:reduce){.bonus b{animation-duration:1.6s}.bonus i{display:none}}

@@ -457,7 +457,9 @@ const raycaster = new THREE.Raycaster(); raycaster.firstHitOnly = true;
 const ndc = new THREE.Vector2();
 const cursor = $('#sponge-cursor');
 
+let lastPaintT = 0, bonusDone = false, cleanNow = 0;
 function paintAt(p) {
+  lastPaintT = performance.now();
   const bmin = DirtUniforms.uBoxMin.value, bs = DirtUniforms.uBoxSize.value;
   const R = 0.24;
   const cx = (p.x - bmin.x) / bs.x * MX, cy = (p.y - bmin.y) / bs.y * MY, cz = (p.z - bmin.z) / bs.z * MZ;
@@ -534,7 +536,7 @@ $('#btn-reset').addEventListener('click', () => {
   maskData.fill(0); maskTex.needsUpdate = true;
   const top = hero.getBoundingClientRect().top + scrollY;
   if (scrollY > top + 1) window.scrollTo({ top, behavior: 'instant' });
-  progress = 0; sweepSmooth = 0; washMax = 0;
+  progress = 0; sweepSmooth = 0; washMax = 0; bonusDone = false;
 });
 
 /* ---------------- «Помыть целиком» и стрелка вниз ---------------- */
@@ -558,7 +560,7 @@ $('#btn-wash').addEventListener('click', () => {
   const end = heroTop + hero.offsetHeight - innerHeight;
   if (washMax > 0.95) { // уже чистая — сначала испачкаем
     maskData.fill(0); maskTex.needsUpdate = true;
-    window.scrollTo({ top: heroTop, behavior: 'instant' }); progress = 0; sweepSmooth = 0; washMax = 0;
+    window.scrollTo({ top: heroTop, behavior: 'instant' }); progress = 0; sweepSmooth = 0; washMax = 0; bonusDone = false;
   }
   scrollToY(end, 4200);
 });
@@ -590,6 +592,24 @@ soundBtn.addEventListener('click', () => {
     bgm.play().then(() => fadeTo(0.55, 800)).catch(() => { soundOn = false; soundBtn.classList.remove('active'); });
   } else fadeTo(0, 400, () => bgm.pause());
 });
+
+/* ---------------- «ЧИСТО!» — бонус за ручную мойку ---------------- */
+function showBonus() {
+  const el = document.createElement('div');
+  el.className = 'bonus'; el.setAttribute('role', 'status');
+  el.innerHTML = '<b>Чисто!</b>';
+  for (let i = 0; i < 26; i++) {
+    const sp = document.createElement('i');
+    const a = Math.random() * Math.PI * 2, r = 120 + Math.random() * 220;
+    sp.style.setProperty('--dx', Math.cos(a) * r + 'px');
+    sp.style.setProperty('--dy', Math.sin(a) * r * 0.65 + 'px');
+    sp.style.setProperty('--s', (0.5 + Math.random() * 1.1).toFixed(2));
+    sp.style.setProperty('--d', (Math.random() * 0.35).toFixed(2) + 's');
+    el.appendChild(sp);
+  }
+  stage.appendChild(el);
+  setTimeout(() => el.remove(), 2400);
+}
 
 /* ---------------- зум ---------------- */
 let zoomTarget = null;
@@ -737,11 +757,20 @@ function tick() {
   // UI
   phases.forEach((el, i) => {
     // заголовок следует за мойкой, а не за скроллом: вымытая машина остаётся «сияющей»
-    const on = (i === 0 && washMax <= 0) || (i === 1 && washMax > 0 && washMax < 0.98) || (i === 2 && washMax >= 0.98);
+    const ph = (washMax >= 0.98 || cleanNow >= 0.98) ? 2 : (washMax > 0 || cleanNow > 0.03) ? 1 : 0;
+    const on = i === ph;
     el.classList.toggle('on', on);
   });
   if (frame % 12 === 0) {
-    const c = Math.round(cleanliness() * 100);
+    let cl = cleanliness();
+    // Домыли губкой (не завесой) — «ЧИСТО!» как бонус в игре. Последние труднодоступные 2% домываем сами.
+    if (!bonusDone && spongeMode && performance.now() - lastPaintT < 3000 && cl >= 0.98 && washMax < 0.98) {
+      bonusDone = true;
+      maskData.fill(255); maskTex.needsUpdate = true; cl = 1;
+      showBonus();
+    }
+    cleanNow = cl;
+    const c = Math.round(cl * 100);
     meterVal.textContent = c + '%';
     meterFill.style.transform = `scaleX(${c / 100})`;
     if (stepEl) stepEl.textContent = c >= 98 ? 'Готово · Блеск' : (active ? 'Шаг 2 · Мойка' : (sweepSmooth > 0.99 ? 'Шаг 3 · Блеск' : 'Шаг 1 · Приёмка'));
