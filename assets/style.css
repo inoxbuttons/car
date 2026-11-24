@@ -85,9 +85,20 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 
 #loader{position:absolute;inset:0;z-index:20;display:grid;place-items:center;background:var(--bg);transition:opacity .6s}
 #loader.hidden{opacity:0;pointer-events:none}
-.loader-box{width:240px;text-align:center;font-size:13px;color:var(--muted)}
-.loader-track{height:2px;background:rgba(255,255,255,.1);margin-bottom:14px;overflow:hidden;border-radius:2px}
-#loader-bar{height:100%;background:var(--accent);transform-origin:left;transform:scaleX(0);transition:transform .2s}
+/* спидометр-лоадер */
+.loader-box{position:relative;width:min(300px,72vw);text-align:center;font-size:13px;color:var(--muted)}
+.speedo{display:block;width:100%;height:auto;overflow:visible}
+.sp-track{fill:none;stroke:rgba(255,255,255,.08);stroke-width:10;stroke-linecap:round}
+.sp-fill{fill:none;stroke:var(--accent);stroke-width:10;stroke-linecap:round;stroke-dasharray:100 100;stroke-dashoffset:100;filter:drop-shadow(0 0 6px rgba(127,211,255,.7))}
+.sp-red{fill:none;stroke:#ff4d5e;stroke-width:3;stroke-opacity:.8}
+.sp-labels text{fill:#cfd6dd;font-family:var(--display);font-weight:700;font-size:11px;text-anchor:middle}
+.sp-needle{transform-origin:100px 100px;transform:rotate(-120deg)}
+.sp-needle path{fill:#ff4d5e;filter:drop-shadow(0 0 4px rgba(255,77,94,.8))}
+.sp-hub{fill:#15171b;stroke:#fff;stroke-opacity:.5;stroke-width:2}
+.sp-readout{position:absolute;left:0;right:0;top:58%;display:flex;flex-direction:column;align-items:center;line-height:1}
+.sp-readout b{font-family:var(--display);font-weight:900;font-size:34px;color:#fff;font-variant-numeric:tabular-nums}
+.sp-readout small{margin-top:4px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+#loader-txt{margin-top:18px}
 
 #sponge-cursor{position:fixed;left:0;top:0;z-index:40;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;border:2px solid rgba(255,255,255,.9);background:radial-gradient(circle,rgba(127,211,255,.25),rgba(127,211,255,.05) 70%);box-shadow:0 0 24px rgba(127,211,255,.4);pointer-events:none;opacity:0;transition:opacity .2s}
 #sponge-cursor.show{opacity:1}

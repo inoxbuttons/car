@@ -250,17 +250,36 @@ const loader = new GLTFLoader();
 loader.setMeshoptDecoder(MeshoptDecoder);
 let car = null, carMeshes = [], carBox = new THREE.Box3(), sweepMin = -3, sweepMax = 3;
 let surfaceVoxels = null, bvhReady = false, loadToken = 0;
-const loaderEl = $('#loader'), loaderBar = $('#loader-bar'), loaderTxt = $('#loader-txt');
+const loaderEl = $('#loader'), loaderTxt = $('#loader-txt');
+// Спидометр: стрелка «разгоняется» по мере загрузки (0–240 км/ч = 0–100%)
+const spNeedle = $('#loader-needle'), spArc = $('#loader-arc'), spSpeed = $('#loader-speed');
+let spTarget = 0, spShown = 0, spRaf = null;
+function spSet(p) { spTarget = Math.max(spTarget, Math.min(1, p)); if (!spRaf) spRaf = requestAnimationFrame(spTick); }
+function spReset() { spTarget = spShown = 0; spDraw(0); }
+function spDraw(p) {
+  spNeedle.style.transform = `rotate(${-120 + 240 * p}deg)`;
+  spArc.style.strokeDashoffset = String(100 - 100 * p);
+  spSpeed.textContent = Math.round(240 * p);
+}
+function spTick() {
+  spShown += (spTarget - spShown) * 0.12;
+  if (Math.abs(spTarget - spShown) < 0.001) spShown = spTarget;
+  // лёгкая «дрожь» стрелки на ходу, как у настоящего спидометра
+  const jitter = spShown > 0.02 && spShown < 0.999 ? Math.sin(performance.now() / 45) * 0.004 : 0;
+  spDraw(Math.max(0, spShown + jitter));
+  spRaf = spShown !== spTarget || jitter ? requestAnimationFrame(spTick) : null;
+}
 
 async function loadCar(def) {
   const token = ++loadToken;
   loaderEl.classList.remove('hidden');
-  loaderBar.style.transform = 'scaleX(0)';
+  spReset();
   loaderTxt.textContent = 'Загружаем ' + def.name + '…';
   let gltf;
   try {
     gltf = await loader.loadAsync(def.url, (e) => {
-      if (e.total) loaderBar.style.transform = `scaleX(${e.loaded / e.total})`;
+      // без Content-Length оцениваем по объёму: стрелка всё равно ползёт вверх
+      spSet(e.total ? (e.loaded / e.total) * 0.92 : 0.92 * (1 - Math.exp(-e.loaded / 3e6)));
     });
   } catch (err) {
     loaderTxt.textContent = 'Не удалось загрузить модель. Откройте сайт через локальный сервер (см. README).';
@@ -328,10 +347,10 @@ async function loadCar(def) {
   setupWipers();
   buildSurfaceVoxels();
   bvhReady = false;
-  loaderBar.style.transform = 'scaleX(1)';
+  spSet(1);
   // прогрев шейдеров
   renderer.compile(scene, camera);
-  setTimeout(() => loaderEl.classList.add('hidden'), 250);
+  setTimeout(() => loaderEl.classList.add('hidden'), 700);  // дать стрелке дойти до максимума
   document.querySelectorAll('.car-chip').forEach((el) => el.classList.toggle('active', el.dataset.id === def.id));
   // BVH для губки — в фоне
   setTimeout(() => { if (token === loadToken) buildBVH(); }, 600);
