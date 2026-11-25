@@ -60,6 +60,8 @@
     'Автомойка и детейлинг БЛЕСК: ручная мойка, химчистка, полировка и керамика. Привезите грязной — заберите сияющей.': 'Car wash & detailing: hand wash, interior cleaning, polishing and ceramic coating. Dirty in. Pros on it. Shine out.',
   };
   const CREDITS_RU = 'иконки:';
+  // в EN другие модели — и другие авторы (все с Sketchfab)
+  const CREDITS_EN = '3D (Sketchfab): Tesla Model 3 — wintrez (CC BY 4.0), Tesla Roadster 2020 — metarex.4d (CC BY 4.0), BMW M4 Widebody Modified — VTDAT23 (CC BY 4.0), BMW G82 M4 ADRO and BMW M4 Modified Widebody — VTX (CC BY-NC-SA 4.0), Chevrolet Corvette C7 — Martin Trafas (CC BY 4.0), Chevrolet Blazer Premier 2019 — Ddiaz Design (CC BY 4.0), Chevrolet Traverse RS 2023 — Ddiaz Design (CC BY-NC-SA 4.0), Chevrolet Traverse LT 2025 — twr422 (CC BY 4.0), RAM 1500 TRX 2021 — Outlaw Games (CC BY-NC 4.0), Jeep Compass 2022 — Davidson (CC BY 4.0) · HDRI: Poly Haven (CC0) · icons: Adrien Coquet, Wahyu Adam, Symbolon — Noun Project (CC BY 3.0)';
 
   // перевод одной строки (для скриптов): window.__t('Чисто!')
   window.__t = (s) => (locale === 'en' && EN[s] !== undefined ? EN[s] : s);
@@ -80,6 +82,7 @@
   ['placeholder', 'data-tip', 'aria-label', 'href'].forEach((a) => {
     document.querySelectorAll(`[${a}]`).forEach((el) => { const t = EN[el.getAttribute(a)]; if (t !== undefined) el.setAttribute(a, t); });
   });
+  const cr = document.querySelector('.credits'); if (cr) cr.textContent = CREDITS_EN;
   document.title = EN[document.title] || document.title;
   const md = document.querySelector('meta[name=description]');
   if (md && EN[md.content]) md.content = EN[md.content];

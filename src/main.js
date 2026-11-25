@@ -19,11 +19,26 @@ THREE.Mesh.prototype.raycast = acceleratedRaycast;
    Модели. Чтобы заменить машину — положите .glb в /models и добавьте
    строку сюда. front: +1 — перед машины смотрит в +Z, -1 — в −Z.
 ------------------------------------------------------------------- */
-const CARS = window.CAR_MODELS || [
+// RU — китайские модели, EN — западные (язык выбирает assets/i18n.js → window.LOCALE)
+const CARS_RU = [
   { id: 'haval',  name: 'Haval H6',       url: 'models/haval.glb',  front: -1, paint: 'mat1' },
   { id: 'omoda',  name: 'Omoda 5',        url: 'models/omoda.glb',  front: 1,  paint: 'CarPaint' },
   { id: 'jetour', name: 'Jetour Dashing', url: 'models/jetour.glb', front: 1,  paint: 'CarPaint_UV0' },
 ];
+const CARS_EN = [
+  { id: 'tesla-m3',    name: 'Tesla Model 3',     url: 'models/en/tesla-m3.glb',    front: 1, paint: 'carpaint' },
+  { id: 'roadster',    name: 'Tesla Roadster',    url: 'models/en/roadster.glb',    front: 1, paint: 'car_main_paint' },
+  { id: 'm4',          name: 'BMW M4 Widebody',   url: 'models/en/m4-widebody.glb', front: 1, paint: 'bBMW_M4CompetitionG82TNR0_2021PaintTNR_Material_004' },
+  { id: 'm4-adro',     name: 'BMW M4 ADRO',       url: 'models/en/m4-adro.glb',     front: 1, paint: 'untitledBMW_M4CompetitionG82TNR3_2021PaintTNR_Material_008' },
+  { id: 'm4-vtx',      name: 'BMW M4 Modified',   url: 'models/en/m4-vtx.glb',      front: 1, paint: 'bBMW_M4CompetitionG82TNR0_2021PaintTNR_Material_004' },
+  { id: 'corvette',    name: 'Chevrolet Corvette', url: 'models/en/corvette.glb',   front: 1, paint: ['Car_Paint', 'Car_Paint_2'] },
+  { id: 'blazer',      name: 'Chevrolet Blazer',  url: 'models/en/blazer.glb',      front: 1, paint: 'B4W_carpaint' },
+  { id: 'traverse-rs', name: 'Chevrolet Traverse RS', url: 'models/en/traverse-rs.glb', front: 1, paint: 'CarPaint' },
+  { id: 'traverse-lt', name: 'Chevrolet Traverse LT', url: 'models/en/traverse-lt.glb', front: 1, paint: 'EXT_COLORBODY.011' },
+  { id: 'ram',         name: 'RAM 1500 TRX',      url: 'models/en/ram-trx.glb',     front: 1, paint: 'RAM_1500TRX_2021Paint_Material' },
+  { id: 'compass',     name: 'Jeep Compass',      url: 'models/en/compass.glb',     front: 1, paint: 'Jeep_Compass_mat_13_1' },
+];
+const CARS = window.CAR_MODELS || (window.LOCALE === 'en' ? CARS_EN : CARS_RU);
 const CAR_LENGTH = 4.6;
 // цвет кузова «как в видео» — глубокий чёрный глянец (null — оставить родной цвет модели)
 const PAINT_COLOR = window.CAR_PAINT === undefined ? '#060708' : window.CAR_PAINT;
@@ -316,7 +331,7 @@ async function loadCar(def) {
         g.setAttribute('_exterior', new THREE.BufferAttribute(new Float32Array(g.attributes.position.count).fill(1), 1));
         missingExterior = true;
       }
-      if (PAINT_COLOR && def.paint && !Array.isArray(o.material) && o.material.name === def.paint) {
+      if (PAINT_COLOR && def.paint && !Array.isArray(o.material) && [].concat(def.paint).includes(o.material.name)) {
         o.material = getPaintMaterial();
       }
       const mats = Array.isArray(o.material) ? o.material : [o.material];

@@ -280,3 +280,8 @@ h2{font-family:var(--display);font-weight:900;text-transform:uppercase;line-heig
 /* ---------- EN: заголовок первого экрана в одну строку ---------- */
 html[lang=en] .headline h1 span{display:inline}
 html[lang=en] .headline h1 span+span{margin-left:.3em}
+
+/* длинный список моделей (EN) — прокрутка внутри колонки, длинные названия обрезаются */
+.car-switch{max-height:calc(100% - 168px - 120px);overflow-y:auto;overflow-x:visible;padding:4px 6px 8px;margin-right:-6px;width:calc(var(--side-w,200px) + 12px);scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.25) transparent}
+.car-chip{flex:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:640px){.car-switch{max-height:calc(100% - 146px - 240px)}}
