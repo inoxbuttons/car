@@ -302,7 +302,9 @@ html[lang=en] .headline h1 span+span{margin-left:.3em}
   .nav nav a{padding:12px 14px;border-radius:10px;font-size:15px}
   .nav nav a:hover,.nav nav a:active{background:rgba(255,255,255,.06);opacity:1}
   /* кнопки управления помещаются в ширину телефона */
-  .gbtn{--s:36px}
-  .toolbar{gap:4px;padding:6px 6px;bottom:12px}
+  /* панель кнопок — на всю ширину, кнопки максимального размера, какой влезает */
+  .toolbar{left:8px;right:8px;transform:none;justify-content:space-between;gap:4px;padding:6px;bottom:12px}
+  .gbtn{--s:min(44px,calc((100vw - 16px - 12px - 28px) / 8))}
+  /* длинные слова в заголовках («компромиссов», «compromise») не должны вылезать за экран */
+  h2{font-size:clamp(22px,7vw,40px)}
 }
-@media (max-width:360px){ .gbtn{--s:33px} .toolbar{gap:3px} }
