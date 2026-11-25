@@ -37,6 +37,7 @@ function getPaintMaterial() {
 }
 
 const $ = (s) => document.querySelector(s);
+const T = (s) => (window.__t ? window.__t(s) : s);   // перевод строк из скрипта (assets/i18n.js)
 const canvas = $('#scene');
 const stage = $('.stage');
 const isTouch = matchMedia('(pointer: coarse)').matches;
@@ -277,7 +278,7 @@ async function loadCar(def) {
   const token = ++loadToken;
   loaderEl.classList.remove('hidden');
   spReset();
-  loaderTxt.textContent = 'Загружаем ' + def.name + '…';
+  loaderTxt.textContent = T('Загружаем') + ' ' + def.name + '…';
   let gltf;
   try {
     gltf = await loader.loadAsync(def.url, (e) => {
@@ -285,7 +286,7 @@ async function loadCar(def) {
       spSet(e.total ? (e.loaded / e.total) * 0.92 : 0.92 * (1 - Math.exp(-e.loaded / 3e6)));
     });
   } catch (err) {
-    loaderTxt.textContent = 'Не удалось загрузить модель. Откройте сайт через локальный сервер (см. README).';
+    loaderTxt.textContent = T('Не удалось загрузить модель. Откройте сайт через локальный сервер (см. README).');
     console.error(err); return;
   }
   if (token !== loadToken) return;
@@ -609,7 +610,7 @@ soundBtn.addEventListener('click', () => {
   soundOn = !soundOn;
   soundBtn.classList.toggle('active', soundOn);
   soundBtn.setAttribute('aria-pressed', String(soundOn));
-  soundBtn.dataset.tip = soundOn ? 'Выключить музыку' : 'Включить музыку';
+  soundBtn.dataset.tip = soundOn ? T('Выключить музыку') : T('Включить музыку');
   if (soundOn) {
     if (!bgm.src) bgm.src = TRACKS[trackIdx];
     bgm.play().then(() => fadeTo(0.55, 800)).catch(() => { soundOn = false; soundBtn.classList.remove('active'); });
@@ -620,7 +621,7 @@ soundBtn.addEventListener('click', () => {
 function showBonus() {
   const el = document.createElement('div');
   el.className = 'bonus'; el.setAttribute('role', 'status');
-  el.innerHTML = '<b>Чисто!</b>';
+  el.innerHTML = '<b>' + T('Чисто!') + '</b>';
   for (let i = 0; i < 26; i++) {
     const sp = document.createElement('i');
     const a = Math.random() * Math.PI * 2, r = 50 + Math.random() * 90;

@@ -276,3 +276,7 @@ h2{font-family:var(--display);font-weight:900;text-transform:uppercase;line-heig
 .psel-list li.is-active{background:rgba(255,255,255,.06)}
 .psel-list li[aria-selected=true]{color:var(--accent)}
 .psel-list li[aria-selected=true] b{color:var(--accent)}
+
+/* ---------- EN: заголовок первого экрана в одну строку ---------- */
+html[lang=en] .headline h1 span{display:inline}
+html[lang=en] .headline h1 span+span{margin-left:.3em}
