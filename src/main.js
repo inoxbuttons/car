@@ -347,6 +347,7 @@ async function loadCar(def) {
   controls.target.set(0, size.y * 0.45, 0);
 
   maskData.fill(0); maskTex.needsUpdate = true;
+  bonusDone = false; cleanNow = 0;   // новая машина — бонус «ЧИСТО!» можно получить заново
   setupWipers();
   buildSurfaceVoxels();
   bvhReady = false;
@@ -479,9 +480,9 @@ const raycaster = new THREE.Raycaster(); raycaster.firstHitOnly = true;
 const ndc = new THREE.Vector2();
 const cursor = $('#sponge-cursor');
 
-let lastPaintT = 0, bonusDone = false, cleanNow = 0;
+let lastPaintT = 0, bonusDone = false, cleanNow = 0, paintedSinceCheck = false;
 function paintAt(p) {
-  lastPaintT = performance.now();
+  lastPaintT = performance.now(); paintedSinceCheck = true;
   const bmin = DirtUniforms.uBoxMin.value, bs = DirtUniforms.uBoxSize.value;
   const R = 0.24;
   const cx = (p.x - bmin.x) / bs.x * MX, cy = (p.y - bmin.y) / bs.y * MY, cz = (p.z - bmin.z) / bs.z * MZ;
@@ -845,7 +846,9 @@ function tick() {
   if (frame % 12 === 0) {
     let cl = cleanliness();
     // Домыли губкой (не завесой) — «ЧИСТО!» как бонус в игре. Последние труднодоступные 2% домываем сами.
-    if (!bonusDone && spongeMode && performance.now() - lastPaintT < 3000 && cl >= 0.98 && washMax < 0.98) {
+    const spongedRecently = paintedSinceCheck || performance.now() - lastPaintT < 3000;
+    paintedSinceCheck = false;
+    if (!bonusDone && spongeMode && spongedRecently && cl >= 0.98 && washMax < 0.98) {
       bonusDone = true;
       maskData.fill(255); maskTex.needsUpdate = true; cl = 1;
       showBonus();
