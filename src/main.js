@@ -47,6 +47,7 @@ function getPaintMaterial() {
   if (!paintMat) paintMat = new THREE.MeshPhysicalMaterial({
     color: new THREE.Color(PAINT_COLOR), metalness: 0.15, roughness: 0.12,
     clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.25,
+    side: THREE.DoubleSide,   // у части моделей (Jeep) грани кузова вывернуты — с одной стороной они пропадают
   });
   return paintMat;
 }
