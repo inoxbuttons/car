@@ -10,7 +10,7 @@
 
   const EN = {
     // меню
-    'Услуги': 'Services', 'Почему мы': 'Why us', 'Контакты': 'Contacts', 'Записаться': 'Book now',
+    'Меню': 'Menu', 'Услуги': 'Services', 'Почему мы': 'Why us', 'Контакты': 'Contacts', 'Записаться': 'Book now',
     // первый экран (в EN — одной строкой: «DIRTY IN», «PROS ON IT», «SHINE OUT»)
     'Привези': 'Dirty', 'грязной': 'in',
     'Доверь': 'Pros', 'её профи': 'on it',
