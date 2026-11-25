@@ -26,8 +26,8 @@ const CARS_RU = [
   { id: 'jetour', name: 'Jetour Dashing', url: 'models/jetour.glb', front: 1,  paint: 'CarPaint_UV0' },
 ];
 const CARS_EN = [   // первая в списке открывается при загрузке и в интро
-  { id: 'blazer',   name: 'Chevrolet Blazer',   url: 'models/en/blazer.glb',      front: 1, paint: 'B4W_carpaint' },
   { id: 'compass',  name: 'Jeep Compass',       url: 'models/en/compass.glb',     front: 1, paint: 'Jeep_Compass_mat_13_1' },
+  { id: 'blazer',   name: 'Chevrolet Blazer',   url: 'models/en/blazer.glb',      front: 1, paint: 'B4W_carpaint' },
   { id: 'traverse', name: 'Chevrolet Traverse', url: 'models/en/traverse-rs.glb', front: 1, paint: 'CarPaint' },
   { id: 'tesla-m3', name: 'Tesla Model 3',      url: 'models/en/tesla-m3.glb',    front: 1, paint: 'carpaint' },
   { id: 'm4-adro',  name: 'BMW M4 ADRO',        url: 'models/en/m4-adro.glb',     front: 1, paint: 'untitledBMW_M4CompetitionG82TNR3_2021PaintTNR_Material_008' },
