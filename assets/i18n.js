@@ -61,7 +61,7 @@
   };
   const CREDITS_RU = 'иконки:';
   // в EN другие модели — и другие авторы (все с Sketchfab)
-  const CREDITS_EN = '3D (Sketchfab): Chevrolet Blazer Premier 2019 — Ddiaz Design (CC BY 4.0), Jeep Compass 2022 — Davidson (CC BY 4.0), Chevrolet Traverse RS 2023 — Ddiaz Design (CC BY-NC-SA 4.0), Tesla Model 3 — wintrez (CC BY 4.0), BMW G82 M4 ADRO — VTX (CC BY-NC-SA 4.0) · HDRI: Poly Haven (CC0) · icons: Adrien Coquet, Wahyu Adam, Symbolon — Noun Project (CC BY 3.0)';
+  const CREDITS_EN = '3D (Sketchfab): Chevrolet Blazer Premier 2019 — Ddiaz Design (CC BY 4.0), Jeep Compass 2022 — Davidson (CC BY 4.0), Tesla Model 3 — wintrez (CC BY 4.0), BMW G82 M4 ADRO — VTX (CC BY-NC-SA 4.0) · HDRI: Poly Haven (CC0) · icons: Adrien Coquet, Wahyu Adam, Symbolon — Noun Project (CC BY 3.0)';
 
   // перевод одной строки (для скриптов): window.__t('Чисто!')
   window.__t = (s) => (locale === 'en' && EN[s] !== undefined ? EN[s] : s);
