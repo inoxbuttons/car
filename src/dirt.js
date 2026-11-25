@@ -54,7 +54,7 @@ void computeDirt(){
   //  3) веер брызг за колёсами и грязные арки;
   //  4) «пылевой мешок» на задней двери и бампере;
   //  5) засохшие капли и дорожки от дождя.
-  vec3 n = normalize(vDN);
+  vec3 n = dot(vDN, vDN) > 1e-12 ? normalize(vDN) : vec3(0.0, 1.0, 0.0);
   float up = clamp(n.y, 0.0, 1.0);
   float side = 1.0 - abs(n.y);
   float L = uBoxSize.z, H = uBoxSize.y;
@@ -161,7 +161,9 @@ vec3 dirtBump(vec3 surf_pos, vec3 surf_norm, float hgt){
   vec3 r1 = cross(sy, surf_norm), r2 = cross(surf_norm, sx);
   float det = dot(sx, r1);
   vec3 grad = sign(det) * (dFdx(hgt)*r1 + dFdy(hgt)*r2);
-  return normalize(abs(det)*surf_norm - grad);
+  vec3 bn = abs(det)*surf_norm - grad;
+  // на вырожденных пикселях (края, очень мелкие треугольники) вектор нулевой → NaN → чёрные пятна
+  return dot(bn, bn) > 1e-20 ? normalize(bn) : surf_norm;
 }
 `;
 

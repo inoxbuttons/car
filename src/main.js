@@ -332,7 +332,15 @@ async function loadCar(def) {
       const mats = Array.isArray(o.material) ? o.material : [o.material];
       mats.forEach((m) => {
         patchMaterial(m);
-        if (m.isMeshPhysicalMaterial && m.transmission > 0) m.envMapIntensity = 1.2;
+        // Стекло с «преломлением» (KHR_materials_transmission) — у западных моделей им сделаны окна и фары.
+        // Оно рисуется через отдельный проход сцены и на части видеокарт даёт чёрные пятна; делаем обычное тонированное стекло.
+        if (m.isMeshPhysicalMaterial && m.transmission > 0) {
+          m.transmission = 0; m.thickness = 0;
+          m.transparent = true; m.depthWrite = false;
+          m.opacity = Math.min(m.opacity, m.color && m.color.getHSL({}).l > 0.5 ? 0.25 : 0.45);
+          m.roughness = Math.min(m.roughness, 0.1); m.envMapIntensity = 1.2;
+          m.needsUpdate = true;
+        }
         // тонировка: слишком прозрачные тёмные стёкла делаем плотнее
         if (m.transparent && m.opacity < 0.55 && m.color && m.color.getHSL({}).l < 0.2 && !m.map) m.opacity = 0.62;
       });
