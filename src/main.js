@@ -575,9 +575,10 @@ $('#btn-rotate').addEventListener('click', () => setSponge(false));
 // Смыв завесой привязан к скроллу, поэтому возвращаем страницу к началу первого экрана.
 $('#btn-reset').addEventListener('click', () => {
   maskData.fill(0); maskTex.needsUpdate = true;
+  expandHero();
   const top = hero.getBoundingClientRect().top + scrollY;
   if (scrollY > top + 1) window.scrollTo({ top, behavior: 'instant' });
-  progress = 0; sweepSmooth = 0; washMax = 0; bonusDone = false;
+  progress = 0; sweepSmooth = 0; washMax = 0; bonusDone = false; cleanNow = 0;
 });
 
 /* ---------------- «Помыть целиком» и стрелка вниз ---------------- */
@@ -597,12 +598,14 @@ function scrollToY(y, ms) {
 // любое ручное колесо/касание прерывает автопрокрутку
 ['wheel', 'touchstart', 'keydown'].forEach((ev) => addEventListener(ev, () => { if (autoScroll) { cancelAnimationFrame(autoScroll); autoScroll = null; } }, { passive: true }));
 $('#btn-wash').addEventListener('click', () => {
+  if (washMax > 0.95 || heroCollapsed) { // уже чистая — сначала испачкаем
+    maskData.fill(0); maskTex.needsUpdate = true;
+    expandHero();
+    const top0 = hero.getBoundingClientRect().top + scrollY;
+    window.scrollTo({ top: top0, behavior: 'instant' }); progress = 0; sweepSmooth = 0; washMax = 0; bonusDone = false; cleanNow = 0;
+  }
   const heroTop = hero.getBoundingClientRect().top + scrollY;
   const end = heroTop + hero.offsetHeight - innerHeight;
-  if (washMax > 0.95) { // уже чистая — сначала испачкаем
-    maskData.fill(0); maskTex.needsUpdate = true;
-    window.scrollTo({ top: heroTop, behavior: 'instant' }); progress = 0; sweepSmooth = 0; washMax = 0; bonusDone = false;
-  }
   scrollToY(end, 4200);
 });
 
@@ -753,6 +756,26 @@ const phases = [...document.querySelectorAll('.phase')];
 // washMax — сколько уже вымыто: только растёт. Скролл вверх машину обратно не пачкает,
 // испачкать можно только кнопкой «Испачкать снова».
 let progress = 0, sweepSmooth = 0, washMax = 0;
+// Когда машина уже чистая, длинный «липкий» первый экран не нужен: при повторной прокрутке
+// он держал бы экран ~2.5 высоты экрана впустую. Сворачиваем его до одной высоты экрана,
+// компенсируя прокрутку, чтобы страница не прыгнула. «Испачкать снова» разворачивает обратно.
+let heroCollapsed = false;
+function collapseHero() {
+  if (heroCollapsed) return;
+  const heroTop = hero.getBoundingClientRect().top + scrollY;
+  const before = hero.offsetHeight;
+  hero.classList.add('washed');
+  const after = hero.offsetHeight;
+  // «липкая» сцена всегда стоит в конце своего отрезка, поэтому выкинутый кусок целиком выше неё
+  const removedAbove = THREE.MathUtils.clamp(scrollY - heroTop, 0, before - after);
+  if (removedAbove > 0) window.scrollTo({ top: scrollY - removedAbove, behavior: 'instant' });
+  heroCollapsed = true;
+}
+function expandHero() {
+  if (!heroCollapsed) return;
+  hero.classList.remove('washed');
+  heroCollapsed = false;
+}
 function readScroll() {
   const r = hero.getBoundingClientRect();
   const total = r.height - innerHeight;
@@ -873,6 +896,8 @@ function tick() {
       showBonus();
     }
     cleanNow = cl;
+    // свернуть первый экран, когда машина чистая и человек не посередине мойки
+    if (!intro && (washMax >= 0.999 || cl >= 0.98) && (progress >= 0.99 || progress <= 0.02)) collapseHero();
     const c = Math.round(cl * 100);
     meterVal.textContent = c + '%';
     meterFill.style.transform = `scaleX(${c / 100})`;
