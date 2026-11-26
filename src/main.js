@@ -791,7 +791,8 @@ function tick() {
   DirtUniforms.uTime.value = t; waterMat.uniforms.uTime.value = t;
 
   // мойка: 0..0.14 — «привезите грязной», 0.14..0.84 — проезд арки, дальше — чистая
-  const wp = THREE.MathUtils.clamp((progress - 0.14) / 0.7, 0, 1);
+  // мойка начинается почти сразу со скроллом (раньше первые 14% прокрутки ничего не происходило)
+  const wp = THREE.MathUtils.clamp((progress - 0.04) / 0.8, 0, 1);
   washMax = Math.max(washMax, wp);
   sweepSmooth += (washMax - sweepSmooth) * Math.min(1, dt * 5);
   const sw = THREE.MathUtils.lerp(sweepMin, sweepMax, sweepSmooth);
@@ -936,4 +937,4 @@ tick();
 window.__wash = { get car() { return car; },
   // отладка переходов: снимок чистой машины, затем застывший кадр перехода в точке p
   debugTransition: (mode, p) => { intro = null; DirtUniforms.uDirt.value = 0; transition.material.uniforms.uMode.value = mode; transition.material.uniforms.uP.value = 0; transition.capture = true; transition.enabled = true;
-    requestAnimationFrame(() => requestAnimationFrame(() => { DirtUniforms.uDirt.value = 1; transition.material.uniforms.uP.value = p; })); }, get intro() { return intro ? intro.stage + ':' + intro.t.toFixed(2) + ':' + transition.material.uniforms.uP.value.toFixed(2) : 'done'; }, setProgress: (p) => { progress = p; sweepSmooth = washMax = THREE.MathUtils.clamp((p - 0.14) / 0.7, 0, 1); }, setSponge, paintAt, camera, controls, DirtUniforms, cleanliness };
+    requestAnimationFrame(() => requestAnimationFrame(() => { DirtUniforms.uDirt.value = 1; transition.material.uniforms.uP.value = p; })); }, get intro() { return intro ? intro.stage + ':' + intro.t.toFixed(2) + ':' + transition.material.uniforms.uP.value.toFixed(2) : 'done'; }, setProgress: (p) => { progress = p; sweepSmooth = washMax = THREE.MathUtils.clamp((p - 0.04) / 0.8, 0, 1); }, setSponge, paintAt, camera, controls, DirtUniforms, cleanliness };
